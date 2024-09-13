@@ -1,0 +1,11 @@
+python-dotenv
+langchain_google_genai
+python-docx
+pypandoc_binary
+langchain_groq
+langchain-ollama
+fastapi[all]
+reportlab
+pypdf
+psycopg2
+psycopg2-binary
