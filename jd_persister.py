@@ -1,5 +1,6 @@
 """Save the JD"""
 
+import pathlib
 import pypandoc
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
@@ -16,6 +17,8 @@ def save_jd_and_retrieve(llm_response, job_title, bu_id):
 
     bu_name = get_business_units(bu_id)[0].get("name")
     folder_path = "".join([DOCS_FOLDER, "/", bu_name])
+
+    pathlib.Path(folder_path).mkdir(parents=True, exist_ok=True)
 
     save_jd_txt(llm_response, file_name=job_title, folder_path=folder_path)
     save_jd_doc(llm_response, file_name=job_title, folder_path=folder_path)
