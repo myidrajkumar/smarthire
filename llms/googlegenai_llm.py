@@ -10,6 +10,6 @@ def load_llm():
     """LLM Model to be used"""
     llm = ChatGoogleGenerativeAI(
         model="gemini-1.5-flash",
-        temperature=0.1,
+        temperature=0.8,
     )
     return llm

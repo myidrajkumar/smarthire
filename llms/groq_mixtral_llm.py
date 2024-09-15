@@ -8,5 +8,5 @@ load_dotenv()
 
 def load_llm():
     """LLM Model to be used"""
-    llm = ChatGroq(model="mixtral-8x7b-32768")
+    llm = ChatGroq(model="mixtral-8x7b-32768", temperature=0.8)
     return llm

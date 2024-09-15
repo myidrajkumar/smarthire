@@ -30,6 +30,7 @@ async def generate_jd(request: JobDescriptionRequest):
     llm_response = get_jd_from_model_json(
         request.job_title, request.skills, request.experience
     )
+    print("LLM Response", llm_response)
     file_path = save_jd_and_retrieve(
         llm_response, job_title=request.job_title, bu_id=request.bu_id
     )

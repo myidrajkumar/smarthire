@@ -1,7 +1,9 @@
 """To load the DB"""
+
 import os
 from typing import Optional
 import psycopg2
+
 # from config.dbconfig import load_config
 
 
@@ -16,18 +18,25 @@ def connect_db(db_config):
             return conn
     except (psycopg2.DatabaseError, Exception) as error:
         print(error)
+        raise error
+
 
 def connect_db_env():
     """Connect to the PostgreSQL database server"""
     try:
-        with psycopg2.connect(host=os.getenv("DB_HOST"), user=os.getenv("DB_USER"),
-                              password=os.getenv("DB_PASSWORD"), 
-                              dbname=os.getenv("DB_NAME"), port=5432) as conn:
+        with psycopg2.connect(
+            host=os.getenv("DB_HOST"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD"),
+            dbname=os.getenv("DB_NAME"),
+            port=5432,
+        ) as conn:
             print("Connected to the PostgreSQL server.")
             return conn
     except (psycopg2.DatabaseError, Exception) as error:
         print(error)
-        
+        raise error
+
 
 # config = load_config()
 

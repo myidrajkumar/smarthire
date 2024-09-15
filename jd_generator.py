@@ -5,15 +5,15 @@ from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 
 
-# from googlegenai_llm import load_llm
+from llms.googlegenai_llm import load_llm
 
-# from groq_gemma_llm import load_llm
+# from llms.groq_gemma_llm import load_llm
 
-from llms.groq_llama_llm import load_llm
+# from llms.groq_llama_llm import load_llm
 
-# from groq_mixtral_llm import load_llm
+# from llms.groq_mixtral_llm import load_llm
 
-# from ollama_llama import load_llm
+# from llms.ollama_llama import load_llm
 
 load_dotenv()
 
@@ -57,18 +57,35 @@ def get_job_description_sytem_propmt_msg():
             that helps companies improve their operational efficiency
             and decision-making capabilities.
 
-            You are a hiring manager and looking to hire new employees.
-            You need to prepare a job description(JD) for the job requirements.
-            This JD should be SEO friendly and should highlight
-            the unique features and benefits of the position.
-
-            You need to prepare the JD in JSON format with the following fields
+            You are an AI assistant specialized in creating comprehensive and
+            accurate job descriptions. Your task is to generate a one-page
+            job description that includes
+            
             * Job Title - No creativeness
+            * Description - A clear and engaging overview of the job role
+            * Responsibilities - A detailed list of duties and responsibilities associated with the role.
+            * Skills - An in-depth section outlining the required skills with as much detail as possible. This should be in list format only
+            * Experience - An in-depth section outlining the required skills with as much detail as possible. This should be in list format only
+            * Closing Statement - A compelling conclusion encouraging qualified candidates to apply.
+
+            Guidelines
+            * The job description is as accurate and precise as possible.
+            * The experience and skills sections are detailed and tailored to the job title.
+            * The language is professional and suitable for a formal job posting.
+            * Provide the response in JSON format only
+            * Use professional and inclusive language suitable for a formal job posting.
+            * Except description and closing statement, all other fields should be list only
+
+
+            The Json field names should be the following only
+            * JobTitle
             * Description
             * Responsibilities
             * Skills
-            * Experience - more creative and list format
-            * Closing Statment - most creative but just with one line
+            * Experience
+            * ClosingStatment
+            
+            The final output should be a well-structured, one-page document ready for publication in job listings.
            """
 
 
