@@ -63,7 +63,7 @@ def get_job_description_sytem_propmt_msg():
             
             * Job Title - No creativeness
             * Description - A clear and engaging overview of the job role
-            * Responsibilities - A detailed list of duties and responsibilities associated with the role.
+            * Responsibilities - A detailed list of duties and responsibilities associated with the role. Please provide in list format
             * Skills - An in-depth section outlining the required skills with as much detail as possible. This should be in list format only
             * Experience - An in-depth section outlining the required skills with as much detail as possible. This should be in list format only
             * Closing Statement - A compelling conclusion encouraging qualified candidates to apply.
