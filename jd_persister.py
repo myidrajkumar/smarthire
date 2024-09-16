@@ -22,7 +22,7 @@ def save_jd_and_retrieve(llm_response, job_title, bu_id):
 
     save_jd_txt(llm_response, file_name=job_title, folder_path=folder_path)
     save_jd_doc(llm_response, file_name=job_title, folder_path=folder_path)
-    # save_jd_pdf(llm_response, file_name=job_title, folder_path=folder_path)
+    save_jd_pdf(llm_response, file_name=job_title, folder_path=folder_path)
     return job_title
 
 
