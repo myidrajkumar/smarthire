@@ -5,13 +5,13 @@ from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 
 
-from llms.googlegenai_llm import load_llm
+# from llms.googlegenai_llm import load_llm
 
 # from llms.groq_gemma_llm import load_llm
 
 # from llms.groq_llama_llm import load_llm
 
-# from llms.groq_mixtral_llm import load_llm
+from llms.groq_mixtral_llm import load_llm
 
 # from llms.ollama_llama import load_llm
 
