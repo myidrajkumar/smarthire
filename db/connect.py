@@ -4,10 +4,9 @@ import os
 from datetime import datetime
 from typing import Optional
 
+import pandas as pd
 import psycopg2
 from psycopg2.extras import RealDictCursor
-
-# from config.dbconfig import load_config
 
 
 def connect_db(db_config):
@@ -36,9 +35,6 @@ def connect_db_env():
     except (psycopg2.DatabaseError, Exception) as error:
         print(error)
         raise error
-
-
-# config = load_config()
 
 
 def get_business_units(bu_id: Optional[int] = None):
@@ -118,6 +114,82 @@ def get_jd_from_db(jd_id: int, bu_id: int):
         print(error)
 
 
+# Query Data
+def query_data(query):
+    """Querying via Pandas"""
+    db_connection = connect_db_env()
+    return pd.read_sql(query, db_connection)
+
+
+def get_total_applications_count():
+    """Getting applications count"""
+
+    total_applications_query = """
+    SELECT COUNT(application_id) AS total_applications 
+    FROM applications;
+    """
+
+    return query_data(total_applications_query).iloc[0]["total_applications"]
+
+
+def get_screening_efficiency():
+    """Getting screening efficiency"""
+
+    ai_screening_efficiency_query = """
+        SELECT COUNT(*) * 100.0 / (SELECT COUNT(*) FROM applications) AS ai_efficiency
+        FROM applications WHERE screening_score > 70;
+    """
+    return query_data(ai_screening_efficiency_query).iloc[0]["ai_efficiency"]
+
+
+def get_candidates_pipeline():
+    """Getting candidates pipeline"""
+
+    pipeline_query = """
+        SELECT stage, COUNT(*) AS candidates
+        FROM applications
+        GROUP BY stage;
+    """
+    return query_data(pipeline_query)
+
+
+def get_time_to_hire():
+    """Getting time to hire"""
+
+    time_to_hire_query = """
+        SELECT job_id, AVG(DATE_PART('day', date_updated - date_applied)) AS avg_time_to_hire
+        FROM applications
+        WHERE status = 'Hired'
+        GROUP BY job_id;
+    """
+    return query_data(time_to_hire_query)
+
+
+def get_max_time_to_hire():
+    """Getting maximum time to hire"""
+
+    max_time_to_hire_query = """
+       SELECT MAX(avg_time_to_hire) AS max_time
+       FROM (
+           SELECT job_id, AVG(DATE_PART('day', date_updated - date_applied)) AS avg_time_to_hire
+           FROM applications
+           WHERE status = 'Hired'
+           GROUP BY job_id
+       ) AS subquery;
+    """
+    return query_data(max_time_to_hire_query)
+
+
+def get_entire_job_openings_count():
+    """Getting entire job openings count"""
+
+    total_jobopenings_query = """
+    SELECT COUNT(job_id) AS total_openings 
+    FROM job_openings;
+    """
+
+    return query_data(total_jobopenings_query).iloc[0]["total_openings"]
+
+
 if __name__ == "__main__":
-    config = load_config()
-    connect_db(config)
+    connect_db_env()

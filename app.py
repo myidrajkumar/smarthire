@@ -2,7 +2,12 @@
 
 from fastapi import FastAPI
 
-from apis import categorized_apis, jd_generator_apis, resume_screen_apis
+from apis import (
+    categorized_apis,
+    data_visualizations,
+    jd_generator_apis,
+    resume_screen_apis,
+)
 
 from jd_generator import get_jd_from_model_json
 from jd_persister import save_jd_and_retrieve
@@ -12,6 +17,7 @@ app = FastAPI()
 app.include_router(jd_generator_apis.router)
 app.include_router(resume_screen_apis.router)
 app.include_router(categorized_apis.router)
+app.include_router(data_visualizations.router)
 
 
 def get_job_description_inputs():
