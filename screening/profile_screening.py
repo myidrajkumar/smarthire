@@ -4,6 +4,7 @@ import pathlib
 import os
 
 import docx
+from markdown import markdown
 import pypdf as pdf
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
@@ -22,7 +23,7 @@ class CandidateResult(BaseModel):
     email: str
     name: str
     score: int
-    details: str
+    details: list[str]
 
 
 def profile_screen_results(jd_id, bu_id, resumes):
@@ -58,12 +59,11 @@ def profile_screen_results(jd_id, bu_id, resumes):
                 email=response.get("Candidate Email"),
                 name=response.get("Candidate Name"),
                 score=response.get("Score"),
-                details=response.get("Description"),
+                details=get_markdown_description(response.get("Description")),
             )
         )
 
-    # return sorted(candidate_results, key=  lambda candidate: candidate.score)
-    return candidate_results
+    return sorted(candidate_results, key=lambda candidate: candidate.score)
 
 
 def get_profile_screen_propmt_msg():
@@ -81,7 +81,7 @@ def get_profile_screen_propmt_msg():
             * Candidate Name
             * Candidate Email
             * Score
-            * Description - Providing the reason for the score. This has to be a paragraph of sentences
+            * Description - Providing the reason for the score. Please provide as List
 
             Following are the data you have been provided of resume and JD
             * Resume: {resume}
@@ -151,3 +151,8 @@ def get_jd_info_docx(uploaded_jd):
     for para in doc.paragraphs:
         text += para.text
     return text
+
+
+def get_markdown_description(description):
+    """Convert to markdown"""
+    return [markdown(each_desc) for each_desc in description]

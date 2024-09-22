@@ -1,13 +1,13 @@
 """To load the DB"""
 
 import os
+from datetime import datetime
 from typing import Optional
+
 import psycopg2
+from psycopg2.extras import RealDictCursor
 
 # from config.dbconfig import load_config
-
-
-from psycopg2.extras import RealDictCursor
 
 
 def connect_db(db_config):
@@ -68,10 +68,10 @@ def save_doc_db(bu_id, jd_file, doc_content):
     try:
         with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
 
-            sql = """INSERT INTO jobdescription(title, doc, bu_id)
-             VALUES(%s, %s, %s);"""
+            sql = """INSERT INTO jobdescription(title, doc, bu_id, job_posted)
+             VALUES(%s, %s, %s, %s);"""
 
-            cursor.execute(sql, (jd_file, doc_content, bu_id))
+            cursor.execute(sql, (jd_file, doc_content, bu_id, datetime.now()))
             db_connection.commit()
 
             db_connection.close()
@@ -87,7 +87,7 @@ def get_jds_for_bu_db(bu_id: int):  # -> Any | None:
     try:
         with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
 
-            sql = "SELECT jd.id as jd_id, title, bu.id as bu_id FROM jobdescription jd JOIN businessunit bu on jd.bu_id = bu.id and bu.id = %s"
+            sql = "SELECT jd.id as jd_id, title, bu.id as bu_id, job_posted FROM jobdescription jd JOIN businessunit bu on jd.bu_id = bu.id and bu.id = %s"
 
             cursor.execute(sql, (bu_id))
             results = cursor.fetchall()

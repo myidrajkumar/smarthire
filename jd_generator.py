@@ -5,13 +5,13 @@ from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 
 
-# from llms.googlegenai_llm import load_llm
+from llms.googlegenai_llm import load_llm
 
 # from llms.groq_gemma_llm import load_llm
 
 # from llms.groq_llama_llm import load_llm
 
-from llms.groq_mixtral_llm import load_llm
+# from llms.groq_mixtral_llm import load_llm
 
 # from llms.ollama_llama import load_llm
 
@@ -43,7 +43,7 @@ def get_jd_from_model_json(job_title, skills, experience):
             "job_title": job_title,
             "skills": skills,
             "experience": experience,
-            "num_words": 300,
+            "num_words": 220,
         }
     )
 
@@ -58,7 +58,7 @@ def get_job_description_sytem_propmt_msg():
             and decision-making capabilities.
 
             You are an AI assistant specialized in creating comprehensive and
-            accurate job descriptions. Your task is to generate a one-page
+            accurate job descriptions. Your task is to generate a 1 page
             job description that includes
             
             * Job Title - No creativeness
@@ -66,7 +66,6 @@ def get_job_description_sytem_propmt_msg():
             * Responsibilities - A detailed list of duties and responsibilities associated with the role. Please provide in list format
             * Skills - An in-depth section outlining the required skills with as much detail as possible. This should be in list format only
             * Experience - An in-depth section outlining the required skills with as much detail as possible. This should be in list format only
-            * Closing Statement - A compelling conclusion encouraging qualified candidates to apply.
 
             Guidelines
             * The job description is as accurate and precise as possible.
@@ -74,7 +73,7 @@ def get_job_description_sytem_propmt_msg():
             * The language is professional and suitable for a formal job posting.
             * Provide the response in JSON format only
             * Use professional and inclusive language suitable for a formal job posting.
-            * Except description and closing statement, all other fields should be list only
+            * Except description, all other fields should be list only
 
 
             The Json field names should be the following only
@@ -83,7 +82,6 @@ def get_job_description_sytem_propmt_msg():
             * Responsibilities
             * Skills
             * Experience
-            * ClosingStatment
             
             The final output should be a well-structured, one-page document ready for publication in job listings.
            """
@@ -93,7 +91,7 @@ def get_job_description_user_propmt_msg():
     """As Chat format is followed, the user message"""
     return """
               Write a job description for a {job_title}
-              that is around {num_words} words or less in a neutral tone.
+              that is around {num_words} words or less ONLY in a neutral tone.
               This job needs the skills of {skills}.
               The experience of the candidate should be {experience}.
            """

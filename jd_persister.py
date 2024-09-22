@@ -52,12 +52,6 @@ def save_jd_doc(llm_response, file_name, folder_path):
     for responsibility in llm_response.get("Experience"):
         doc.add_paragraph(responsibility, bullet_style)
 
-    # for _ in range(2):
-    #     doc.add_paragraph()
-
-    # paragraph = doc.add_paragraph(llm_response.get("ClosingStatement"))
-    # paragraph.alignment = WD_ALIGN_PARAGRAPH.CENTER
-
     doc.save(f"{folder_path}/{file_name}.docx")
     return f"{file_name}.docx"
 
