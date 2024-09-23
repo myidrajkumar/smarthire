@@ -50,15 +50,19 @@ async def download_jd(
     bu_name = get_business_units(bu_id)[0].get("name")
     folder_path = "".join(["docs", "/", bu_name])
 
+    file_response = None
     if f_type.endswith("txt"):
         f_name += ".txt"
-        return FileResponse(f"{folder_path}/{f_name}", filename=f_name)
+        file_response = FileResponse(f"{folder_path}/{f_name}", filename=f_name)
     elif f_type.endswith("pdf"):
         f_name += ".pdf"
-        return FileResponse(f"{folder_path}/{f_name}", filename=f_name)
+        file_response = FileResponse(f"{folder_path}/{f_name}", filename=f_name)
     else:
         f_name += ".docx"
-        return FileResponse(f"{folder_path}/{f_name}", filename=f_name)
+        file_response = FileResponse(f"{folder_path}/{f_name}", filename=f_name)
+
+    file_response.headers["Content-Disposition"] = "inline"
+    return file_response
 
 
 @router.get("/savejd")
