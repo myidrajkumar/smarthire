@@ -23,7 +23,7 @@ bu_intro = {
     "digitalx": "The digital X Business Unit works with clients to innovate, deliver, and run solutions that drive growth and bring new business models across industries to the market.\n\
 We manage two key products. First, msg.IoTA, which enables dynamic risk insights, insurance models for loss prevention, sustainability, and claims services. \
 Second, we are the exclusive development partner for SAP Commerce Cloud, Financial Services Accelerator. \
-Utilizing our products combined with market-leading partner solutions, such as SAPs Customer Experience portfolio, we help our clients create meaningful customer journeys for their customers.\n\
+Utilizing our products combined with market-leading partner solutions, such as SAP’s Customer Experience portfolio, we help our clients create meaningful customer journeys for their customers.\n\
 Our global, multi-disciplinary scrum teams combine business process knowledge and development skills with advanced analytics and cloud technologies to solve the business digitization challenges of our clients. \
 We are looking for open-minded people with a passion for technology and excellence to join our team.",
     "bts": "The Business Unit Business Technology Services is a special unit compared to other BU’s in msg global because we are domain and technology agnostic, catering to all industry and technology areas. \
@@ -32,6 +32,12 @@ Our international team of experts is shaping the future of IT services.\n\
 Our valued client is a leading provider of cutting-edge insurance software solutions to clients across the United States. As a well-established, mid-sized company headquartered in New York, they distinguish themselves through their commitment to innovation and customer satisfaction. \
 They are dedicated to optimizing their core insurance software products to maintain a competitive edge within the industry.\n\
 We are seeking highly motivated individuals to contribute to the development and enhancement of their core insurance software products. As a member of our dynamic team, you will play a critical role in addressing complex technical challenges, optimizing application performance, and delivering exceptional value to our clients.",
+    "finance": "The Finance Business Unit provides consulting and implementation services that focus on digital transformation and innovative processes to improve the finance and accounting function for international insurance and banking companies. \
+We are SAP’s preferred solution integrator and offer functional and technical expertise, project methodologies, accelerators and templates, system training, and ongoing maintenance support.\n\
+Our Finance team covers all areas of implementation, data integration, and reporting. As one of the largest Finance teams in the world, we employ consultants, data scientists, software engineers, and industry experts.",
+    "analytics": "The Analytics Business Unit provides consulting, implementation, training, architecture, and installation services for profitability and sustainability management based on SAP’s analytics solutions SAP Analytics Cloud (SAC), PaPM, Sustainability Control Tower (SCT), Data Warehouse Cloud (DWC) and others.\
+We co-develop the SAP PaPM application and content packages providing standard functionality for various use cases and industries. Our team combines functional, technical, and industry expertise on cost allocations, financial planning/budgeting, intercompany transfer pricing, product/service costing, IT costing, tax calculations, funds/liquidity transfer pricing, cost-to-serve, planning simulation, and sustainability. \
+We help our clients in many industries across the globe become more profitable and sustainable, increase operational transparency and control, and create a better basis for decision-making. We are a global, diverse, and inspiring team and offer the opportunity to extend personal and professional capabilities, by working for a leading strategic SAP partner.",
     "default": "TechInterrupt is a leading technology company\
 specializing in software development. It is a system integrator,\
 software development partner and managed services provider\
@@ -40,12 +46,11 @@ and decision-making capabilities.",
 }
 
 msg_footer = {
-    "digitalx": "A place where individuals are equally valued and where diversity and cultural differences are cherished.\
+    "default": "A place where individuals are equally valued and where diversity and cultural differences are cherished.\
 A global team of highly respected SAP and industry experts where you can make a difference.\
 Competitive salaries and a broad range of benefits, some of which are highlighted below.\
-Add here the local specific (if any).\
-Add here the local specific (if any)",
-    "default": "A challenging and multi-cultural working environment with experienced teams.\
+Add here the local specific (if any).",
+    "bts": "A challenging and multi-cultural working environment with experienced teams.\
 Project assignments and regular training schemes to learn and apply modern state-of-the-art technologies as well as professional systems development for critical business and enterprise solutions. \
 Highly competitive compensation packages including incentive payment and private medical insurance.\
 International exposure, internal and external training to help you further develop your talents.\
