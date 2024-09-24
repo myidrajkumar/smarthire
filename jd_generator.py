@@ -5,11 +5,11 @@ from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 
 
-from llms.googlegenai_llm import load_llm
+# from llms.googlegenai_llm import load_llm
 
 # from llms.groq_gemma_llm import load_llm
 
-# from llms.groq_llama_llm import load_llm
+from llms.groq_llama_llm import load_llm
 
 # from llms.groq_mixtral_llm import load_llm
 
@@ -51,12 +51,6 @@ def get_jd_from_model_json(job_title, skills, experience):
 def get_job_description_sytem_propmt_msg():
     """Instruct the system to follow this"""
     return """
-            TechInterrupt is a leading technology company
-            specializing in software development. It is a system integrator,
-            software development partner and managed services provider
-            that helps companies improve their operational efficiency
-            and decision-making capabilities.
-
             You are an AI assistant specialized in creating comprehensive and
             accurate job descriptions. Your task is to generate a 1 page
             job description that includes
@@ -64,9 +58,8 @@ def get_job_description_sytem_propmt_msg():
             * Job Title - No creativeness
             * Description - A clear and engaging overview of the job role
             * Responsibilities - A detailed list of duties and responsibilities associated with the role. Please provide in list format
-            * Skills - An in-depth section outlining the required skills with as much detail as possible. This should be in list format only
-            * Experience - An in-depth section outlining the required skills with as much detail as possible. This should be in list format only
-
+            * Skills & Experience - An in-depth section outlining the required skills and experience with as much detail as possible. This should be in list format only
+            
             Guidelines
             * The job description is as accurate and precise as possible.
             * The experience and skills sections are detailed and tailored to the job title.
@@ -80,8 +73,7 @@ def get_job_description_sytem_propmt_msg():
             * JobTitle
             * Description
             * Responsibilities
-            * Skills
-            * Experience
+            * SkillsAndExperience
             
             The final output should be a well-structured, one-page document ready for publication in job listings.
            """
