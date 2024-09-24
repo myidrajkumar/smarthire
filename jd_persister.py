@@ -67,10 +67,16 @@ def save_jd_and_retrieve(llm_response, job_title, bu_id):
     pathlib.Path(folder_path).mkdir(parents=True, exist_ok=True)
 
     save_jd_doc(
-        llm_response, file_name=job_title, folder_path=folder_path, bu_name=bu_name
+        llm_response,
+        file_name=job_title,
+        folder_path=folder_path,
+        bu_name=bu_name.lower(),
     )
     save_jd_pdf(
-        llm_response, file_name=job_title, folder_path=folder_path, bu_name=bu_name
+        llm_response,
+        file_name=job_title,
+        folder_path=folder_path,
+        bu_name=bu_name.lower(),
     )
     return job_title
 
