@@ -62,6 +62,7 @@ async def download_jd(
         file_response = FileResponse(f"{folder_path}/{f_name}", filename=f_name)
 
     file_response.headers["Content-Disposition"] = "inline"
+    file_response.headers["filename"] = f_name
     return file_response
 
 
