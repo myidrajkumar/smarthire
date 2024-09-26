@@ -4,7 +4,6 @@ import pathlib
 import os
 
 import docx
-from markdown import markdown
 import pypdf as pdf
 from langchain_core.output_parsers import JsonOutputParser
 from langchain_core.prompts import ChatPromptTemplate
@@ -155,4 +154,4 @@ def get_jd_info_docx(uploaded_jd):
 
 def get_markdown_description(description):
     """Convert to markdown"""
-    return [markdown(each_desc) for each_desc in description]
+    return [each_desc for each_desc in description]
