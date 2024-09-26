@@ -46,14 +46,13 @@ and decision-making capabilities.",
 }
 
 msg_footer = {
-    "default": "A place where individuals are equally valued and where diversity and cultural differences are cherished.\
-A global team of highly respected SAP and industry experts where you can make a difference.\
-Competitive salaries and a broad range of benefits, some of which are highlighted below.\
-Add here the local specific (if any).",
-    "bts": "A challenging and multi-cultural working environment with experienced teams.\
-Project assignments and regular training schemes to learn and apply modern state-of-the-art technologies as well as professional systems development for critical business and enterprise solutions. \
-Highly competitive compensation packages including incentive payment and private medical insurance.\
-International exposure, internal and external training to help you further develop your talents.\
+    "default": "A place where individuals are equally valued and where diversity and cultural differences are cherished.\n\
+A global team of highly respected SAP and industry experts where you can make a difference.\n\
+Competitive salaries and a broad range of benefits.",
+    "bts": "A challenging and multi-cultural working environment with experienced teams.\n\
+Project assignments and regular training schemes to learn and apply modern state-of-the-art technologies as well as professional systems development for critical business and enterprise solutions. \n\
+Highly competitive compensation packages including incentive payment and private medical insurance.\n\
+International exposure, internal and external training to help you further develop your talents.\n\
 A team in which the core values are collaboration thought leadership and entrepreneurship.",
 }
 
@@ -115,7 +114,8 @@ def save_jd_doc(llm_response, file_name, folder_path, bu_name):
         if msg_footer.get(bu_name) is not None
         else msg_footer.get("default")
     )
-    for footer in msg_footers.split("."):
+
+    for footer in msg_footers.splitlines():
         doc.add_paragraph(footer, bullet_style)
 
     doc.save(f"{folder_path}/{file_name}.docx")
@@ -159,7 +159,7 @@ def save_jd_pdf(llm_response, file_name, folder_path, bu_name):
     for introduction in bu_introductions.splitlines():
         content.append(Paragraph(introduction, styles["BodyText"]))
 
-    content.append(Spacer(1, 12))
+    # content.append(Spacer(1, 12))
 
     # Responsibilities
     content.append(Paragraph("What you will do", styles["Heading2"]))
@@ -168,7 +168,7 @@ def save_jd_pdf(llm_response, file_name, folder_path, bu_name):
         for resp in llm_response.get("Responsibilities")
     ]
     content.append(ListFlowable(responsibilities, bulletType="bullet"))
-    content.append(Spacer(1, 12))
+    # content.append(Spacer(1, 12))
 
     # Skills & Experience
     content.append(Paragraph("What we are looking for", styles["Heading2"]))
@@ -177,7 +177,7 @@ def save_jd_pdf(llm_response, file_name, folder_path, bu_name):
         for skill in llm_response.get("SkillsAndExperience")
     ]
     content.append(ListFlowable(skills, bulletType="bullet"))
-
+    # content.append(Spacer(1, 12))
     # Footer
     content.append(Paragraph("What we offer", styles["Heading2"]))
     msg_footers = (
@@ -185,9 +185,10 @@ def save_jd_pdf(llm_response, file_name, folder_path, bu_name):
         if msg_footer.get(bu_name) is not None
         else msg_footer.get("default")
     )
+
     footers = [
         ListItem(Paragraph(footer, styles["BodyText"]))
-        for footer in msg_footers.split(".")
+        for footer in msg_footers.splitlines(".")
     ]
     content.append(ListFlowable(footers, bulletType="bullet"))
 

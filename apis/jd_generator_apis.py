@@ -98,7 +98,6 @@ def delete_file(file_path: str):
     """Deleting the generated files"""
     try:
         file_path = file_path[0 : file_path.rfind(".")]
-        os.remove(f"{file_path}.txt")
         os.remove(f"{file_path}.pdf")
         os.remove(f"{file_path}.docx")
     except Exception as e:
