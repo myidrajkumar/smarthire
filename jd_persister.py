@@ -186,11 +186,11 @@ def save_jd_pdf(llm_response, file_name, folder_path, bu_name):
         else msg_footer.get("default")
     )
 
-    footers = [
-        ListItem(Paragraph(footer, styles["BodyText"]))
-        for footer in msg_footers.splitlines(".")
-    ]
-    content.append(ListFlowable(footers, bulletType="bullet"))
+    # footers = [
+    #     ListItem(Paragraph(footer, styles["BodyText"]))
+    #     for footer in msg_footers.splitlines(".")
+    # ]
+    # content.append(ListFlowable(footers, bulletType="bullet"))
 
     # Build PDF
     try:
