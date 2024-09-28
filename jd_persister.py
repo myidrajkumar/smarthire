@@ -1,7 +1,6 @@
 """Save the JD"""
 
 import pathlib
-import pypandoc
 from docx import Document
 from docx.enum.text import WD_ALIGN_PARAGRAPH
 from reportlab.lib.pagesizes import letter
@@ -57,7 +56,7 @@ A team in which the core values are collaboration thought leadership and entrepr
 }
 
 
-def save_jd_and_retrieve(llm_response, job_title, bu_id):
+def save_jd_and_retrieve(llm_response, bu_id):
     """Persist the JD into folder"""
 
     bu_name = get_business_units(bu_id)[0].get("name")
@@ -67,22 +66,22 @@ def save_jd_and_retrieve(llm_response, job_title, bu_id):
 
     save_jd_doc(
         llm_response,
-        file_name=job_title,
         folder_path=folder_path,
         bu_name=bu_name.lower(),
     )
     save_jd_pdf(
         llm_response,
-        file_name=job_title,
         folder_path=folder_path,
         bu_name=bu_name.lower(),
     )
-    return job_title
+    return llm_response.get("JobTitle")
 
 
-def save_jd_doc(llm_response, file_name, folder_path, bu_name):
+def save_jd_doc(llm_response, folder_path, bu_name):
     """Persist the JD as Document"""
     bullet_style = "List Bullet"
+
+    file_name = llm_response.get("JobTitle")
 
     doc = Document()
     page_title = doc.add_heading(
@@ -122,8 +121,10 @@ def save_jd_doc(llm_response, file_name, folder_path, bu_name):
     return f"{file_name}.docx"
 
 
-def save_jd_pdf(llm_response, file_name, folder_path, bu_name):
+def save_jd_pdf(llm_response, folder_path, bu_name):
     """Persist the JD as PDF"""
+
+    file_name = llm_response.get("JobTitle")
 
     # Create PDF document
     doc = SimpleDocTemplate(
@@ -177,20 +178,20 @@ def save_jd_pdf(llm_response, file_name, folder_path, bu_name):
         for skill in llm_response.get("SkillsAndExperience")
     ]
     content.append(ListFlowable(skills, bulletType="bullet"))
-    # content.append(Spacer(1, 12))
+    content.append(Spacer(1, 12))
     # Footer
-    # content.append(Paragraph("What we offer", styles["Heading2"]))
-    # msg_footers = (
-    #     msg_footer.get(bu_name)
-    #     if msg_footer.get(bu_name) is not None
-    #     else msg_footer.get("default")
-    # )
+    content.append(Paragraph("What we offer", styles["Heading2"]))
+    msg_footers = (
+        msg_footer.get(bu_name)
+        if msg_footer.get(bu_name) is not None
+        else msg_footer.get("default")
+    )
 
-    # footers = [
-    #     ListItem(Paragraph(footer, styles["BodyText"]))
-    #     for footer in msg_footers.splitlines(".")
-    # ]
-    # content.append(ListFlowable(footers, bulletType="bullet"))
+    footers = [
+        ListItem(Paragraph(footer, styles["BodyText"]))
+        for footer in msg_footers.splitlines(".")
+    ]
+    content.append(ListFlowable(footers, bulletType="bullet"))
 
     # Build PDF
     try:
@@ -200,17 +201,6 @@ def save_jd_pdf(llm_response, file_name, folder_path, bu_name):
         print(f"Error creating PDF: {e}")
 
     return f"{file_name}.pdf"
-
-
-def save_jd_txt(llm_response, file_name, folder_path):
-    """Persist the JD as TXT"""
-    save_jd_doc(llm_response, file_name, folder_path)
-    pypandoc.convert_file(
-        f"{folder_path}/{file_name}.docx",
-        "plain",
-        outputfile=f"{folder_path}/{file_name}.txt",
-    )
-    return f"{file_name}.txt"
 
 
 # Helper function to wrap text within the specified width

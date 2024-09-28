@@ -31,9 +31,7 @@ async def generate_jd(request: JobDescriptionRequest):
         request.job_title, request.skills, request.experience
     )
     print("LLM Response", llm_response)
-    file_path = save_jd_and_retrieve(
-        llm_response, job_title=request.job_title, bu_id=request.bu_id
-    )
+    file_path = save_jd_and_retrieve(llm_response, bu_id=request.bu_id)
     print("Job Description generated successfully!!!")
     return {"message": "Success", "file_name": file_path}
 

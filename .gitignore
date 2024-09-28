@@ -6,3 +6,4 @@ docs/
 temp
 database.ini
 !.gitignore
+.vscode
