@@ -2,12 +2,13 @@
 
 import pathlib
 import os
+from typing import List
 
 import docx
 import pypdf as pdf
-from langchain_core.output_parsers import JsonOutputParser
+from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.prompts import ChatPromptTemplate
-from pydantic import BaseModel
+from pydantic import BaseModel, RootModel
 
 from db.connect import get_jd_from_db
 from utils.file_utils import get_file_content, save_file_content
@@ -25,11 +26,17 @@ class CandidateResult(BaseModel):
     details: list[str]
 
 
+class CandidatesList(RootModel):
+    """Candidates List"""
+
+    root: List[CandidateResult]
+
+
 def profile_screen_results(jd_id, bu_id, resumes):
     """Do the screeing"""
 
     llm = load_llm()
-    parser = JsonOutputParser()
+    parser = PydanticOutputParser(pydantic_object=CandidatesList)
 
     db_result = get_jd_from_db(jd_id, bu_id)
     file_name = db_result.get("title")
@@ -37,54 +44,63 @@ def profile_screen_results(jd_id, bu_id, resumes):
 
     jd_txt = save_db_files_temporarily_and_get_delete(file_name, file_content)
 
-    candidate_results = []
-    for file in resumes:
-        resume_txt = save_uploaded_files_temporarily_and_get_delete(file)
+    resumes_list = [
+        save_uploaded_files_temporarily_and_get_delete(file) for file in resumes
+    ]
 
-        prompt_template = ChatPromptTemplate(
-            [
-                (
-                    "user",
-                    get_profile_screen_propmt_msg(),
-                ),
-            ]
-        )
+    prompt_template = ChatPromptTemplate(
+        [
+            (
+                "system",
+                get_profile_screen_system_prompt_msg(),
+            ),
+            (
+                "system",
+                "Include only candidates result as list. Please DO NOT provide any other information",
+            ),
+            (
+                "user",
+                get_profile_screen_user_propmt_msg(),
+            ),
+        ]
+    )
 
-        chain = prompt_template | llm | parser
+    chain = prompt_template | llm | parser
 
-        response = chain.invoke({"jd": jd_txt, "resume": resume_txt})
-        candidate_results.append(
-            CandidateResult(
-                email=response.get("Candidate Email"),
-                name=response.get("Candidate Name"),
-                score=response.get("Score"),
-                details=get_markdown_description(response.get("Description")),
-            )
-        )
+    response = chain.invoke({"jd": jd_txt, "resume_list": resumes_list})
+    candidate_results = response.root
 
-    return sorted(candidate_results, key=lambda candidate: candidate.score)
+    return sorted(
+        candidate_results, key=lambda candidate: candidate.score, reverse=True
+    )
 
 
-def get_profile_screen_propmt_msg():
+def get_profile_screen_user_propmt_msg():
+    """Getting screen profile prompt"""
+    return """
+            Following are the data you have been provided of resumes and JD
+            * ResumeList: {resume_list}
+            * JD: {jd}
+           """
+
+
+def get_profile_screen_system_prompt_msg():
     """Getting screen profile prompt"""
     return """
             You are a skilled and very experienced software developer.
             You have a deep understanding of all technologies and programming languages.
-            Your task is to evaluate the resume based on the given job description.
+            Your task is to evaluate the resumes based on the given job description.
             As many will prepare resume based on the given job description and share it,
             you should strongly analyse the resume and provide the score of the provided resume.
-            As we will filter the resume which are not mathing as per your analysis,
+            As we will filter the resume which are not matching as per your analysis,
             think in all perspectives to calculate the score of the provided resume.
 
-            Provide the response in the JSON format with the following fields
-            * Candidate Name
-            * Candidate Email
-            * Score
-            * Description - Providing the reason for the score. Please provide as List
-
-            Following are the data you have been provided of resume and JD
-            * Resume: {resume}
-            * JD: {jd}
+            Provide the response in the List of JSON format.
+            The each item in the list should contain only the following fields
+            * name
+            * email
+            * score - Provide the score out of 100
+            * details - Providing the reason for the score. Please provide as List
            """
 
 
