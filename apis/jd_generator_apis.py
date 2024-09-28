@@ -8,9 +8,9 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 
 from db.connect import get_business_units, save_doc_db
-from file_utils import get_file_content_binary
-from jd_generator import get_jd_from_model_json
-from jd_persister import save_jd_and_retrieve
+from utils.file_utils import get_file_content_binary
+from jd_handling.jd_generator import get_jd_from_model_json
+from jd_handling.jd_persister import save_jd_and_retrieve
 
 router = APIRouter()
 

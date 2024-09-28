@@ -10,7 +10,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel
 
 from db.connect import get_jd_from_db
-from file_utils import get_file_content, save_file_content
+from utils.file_utils import get_file_content, save_file_content
 from llms.groq_gemma_llm import load_llm
 
 TEMP_DIR = "temp"
