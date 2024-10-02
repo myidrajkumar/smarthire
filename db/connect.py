@@ -224,5 +224,23 @@ def save_candidate_details(jd_id, bu_id, candidate_details_list):
     return candidate_details_list
 
 
+def get_screened_candidates(jd_id: int, bu_id: int, interview: str):
+    """Getting only selected candidates"""
+
+    db_connection = connect_db_env()
+    try:
+        with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            sql = "SELECT id, name, email, phone FROM selected_candidates WHERE interview = %s and jd_id = %s and bu_id = %s"
+
+            cursor.execute(sql, (interview, jd_id, bu_id))
+            results = cursor.fetchall()
+
+            db_connection.close()
+            return results
+
+    except Exception as error:
+        print(error)
+
+
 if __name__ == "__main__":
     connect_db_env()

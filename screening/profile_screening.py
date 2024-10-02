@@ -10,7 +10,7 @@ from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel, RootModel
 
-from db.connect import get_jd_from_db, save_candidate_details
+from db.connect import get_jd_from_db, get_screened_candidates, save_candidate_details
 from llms.groq_gemma_llm import load_llm
 from models.candidate import Candidate
 from utils.file_utils import get_file_content, save_file_content
@@ -238,3 +238,17 @@ def get_candidate_details(resumes):
         candidate_details_list.append(candidate_details)
 
     return candidate_details_list
+
+
+def save_selected_candidates(jd_id, bu_id, candidate_ids):
+    """Selecting first round candidates"""
+    interview = "Preliminary Round: Scheduled"
+    # Generate Credentials
+    # Schedule interview duration email
+    # Update DB content as scheduled
+
+
+def get_selected_candidates(jd_id, bu_id):
+    """Selecting first round candidates"""
+    interview = "Preliminary Round: Scheduled"
+    return get_screened_candidates(jd_id, bu_id, interview)

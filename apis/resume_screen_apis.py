@@ -3,7 +3,11 @@
 from typing import List
 from fastapi import APIRouter, UploadFile
 
-from screening.profile_screening import profile_screen_results
+from screening.profile_screening import (
+    get_selected_candidates,
+    profile_screen_results,
+    save_selected_candidates,
+)
 
 router = APIRouter()
 
@@ -16,16 +20,26 @@ async def screen_jd(jd_id: int, bu_id: int, profiles: List[UploadFile]):
     return {"message": "Success", "data": results}
 
 
-# @router.post("/selectcandidates")
-# async def select_candidates(
-#     jd_id: int,
-#     bu_id: int,
-#     profiles: List[UploadFile],
-#     selected_candidates: List[Candidate],
-# ):
-#     """Screening profiles with JD"""
+@router.post("/selectcandidates")
+async def select_candidates(
+    jd_id: int,
+    bu_id: int,
+    candidate_ids: List[int],
+):
+    """Selected candidates"""
 
-#     results = save_selected_candidates(
-#         jd_id=jd_id, bu_id=bu_id, resumes=profiles, candidates=selected_candidates
-#     )
-#     return {"message": "Success", "data": results}
+    save_selected_candidates(jd_id=jd_id, bu_id=bu_id, candidate_ids=candidate_ids)
+
+    return {"message": "Success"}
+
+
+@router.get("/screenedcandidates")
+async def screened_candidates(
+    jd_id: int,
+    bu_id: int,
+):
+    """Selected candidates"""
+
+    results = get_selected_candidates(jd_id=jd_id, bu_id=bu_id)
+
+    return {"message": "Success", "data": results}
