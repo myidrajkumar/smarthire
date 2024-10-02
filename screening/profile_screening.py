@@ -100,7 +100,7 @@ def get_profile_screen_system_prompt_msg():
             * name
             * email
             * score - Provide the score out of 100
-            * details - Providing the reason for the score. Please provide as List
+            * details - Providing the reason for the score. Make it crisp & concise. Please provide as List
            """
 
 

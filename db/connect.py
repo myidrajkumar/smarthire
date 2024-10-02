@@ -77,7 +77,7 @@ def save_doc_db(bu_id, jd_file, doc_content):
 
 
 def get_jds_for_bu_db(bu_id: int):  # -> Any | None:
-    """Retrieve the business units from the database"""
+    """Retrieve all JDs for the specific business units from the database"""
 
     db_connection = connect_db_env()
     try:
@@ -96,7 +96,7 @@ def get_jds_for_bu_db(bu_id: int):  # -> Any | None:
 
 
 def get_jd_from_db(jd_id: int, bu_id: int):
-    """Retrieve the business units from the database"""
+    """Retrieve the specific JD from business units from the database"""
 
     db_connection = connect_db_env()
     try:

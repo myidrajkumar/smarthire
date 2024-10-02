@@ -1,16 +1,17 @@
 """JD Generator APIs"""
 
+import io
 import os
 from typing import Optional
 
 from fastapi import APIRouter, BackgroundTasks
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, StreamingResponse
 from pydantic import BaseModel
 
-from db.connect import get_business_units, save_doc_db
-from utils.file_utils import get_file_content_binary
+from db.connect import get_business_units, get_jd_from_db, save_doc_db
 from jd_handling.jd_generator import get_jd_from_model_json
 from jd_handling.jd_persister import save_jd_and_retrieve
+from utils.file_utils import get_file_content_binary
 
 router = APIRouter()
 
@@ -59,8 +60,30 @@ async def download_jd(
         f_name += ".docx"
         file_response = FileResponse(f"{folder_path}/{f_name}", filename=f_name)
 
-    file_response.headers["Content-Disposition"] = "inline"
-    file_response.headers["filename"] = f_name
+    file_response.headers["Content-Disposition"] = f'inline; filename="{f_name}"'
+    return file_response
+
+
+@router.get("/specificjd")
+async def get_specific_jd(
+    jd_id: int,
+    bu_id: Optional[int] = None,
+):
+    """Serving PDF Response"""
+
+    db_result = get_jd_from_db(jd_id, bu_id)
+    file_name = db_result.get("title")
+    file_content = db_result.get("doc")
+
+    file_stream = io.BytesIO(file_content)
+
+    file_response = StreamingResponse(
+        file_stream,
+        media_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+    )
+
+    file_response.headers["Content-Disposition"] = f'attachment; filename="{file_name}"'
+
     return file_response
 
 
