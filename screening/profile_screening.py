@@ -1,8 +1,8 @@
 """Screening the profiles"""
 
-import pathlib
 import os
-from typing import List
+import pathlib
+from typing import List, Optional
 
 import docx
 import pypdf as pdf
@@ -10,9 +10,10 @@ from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel, RootModel
 
-from db.connect import get_jd_from_db
-from utils.file_utils import get_file_content, save_file_content
+from db.connect import get_jd_from_db, save_candidate_details
 from llms.groq_gemma_llm import load_llm
+from models.candidate import Candidate
+from utils.file_utils import get_file_content, save_file_content
 
 TEMP_DIR = "temp"
 
@@ -20,8 +21,10 @@ TEMP_DIR = "temp"
 class CandidateResult(BaseModel):
     """Candidate Result Model"""
 
+    id: Optional[int] = None
     email: str
     name: str
+    phone: str
     score: int
     details: list[str]
 
@@ -44,9 +47,11 @@ def profile_screen_results(jd_id, bu_id, resumes):
 
     jd_txt = save_db_files_temporarily_and_get_delete(file_name, file_content)
 
-    resumes_list = [
-        save_uploaded_files_temporarily_and_get_delete(file) for file in resumes
-    ]
+    candidate_details = get_candidate_details(resumes)
+    candidate_details = save_candidate_details(
+        jd_id=jd_id, bu_id=bu_id, candidate_details_list=candidate_details
+    )
+    resumes_list = [candidate.resume for candidate in candidate_details]
 
     prompt_template = ChatPromptTemplate(
         [
@@ -70,6 +75,12 @@ def profile_screen_results(jd_id, bu_id, resumes):
     response = chain.invoke({"jd": jd_txt, "resume_list": resumes_list})
     candidate_results = response.root
 
+    for candidate in candidate_results:
+        candidate.id = [
+            saved_candidate.id
+            for saved_candidate in candidate_details
+            if saved_candidate.email == candidate.email
+        ][0]
     return sorted(
         candidate_results, key=lambda candidate: candidate.score, reverse=True
     )
@@ -81,6 +92,13 @@ def get_profile_screen_user_propmt_msg():
             Following are the data you have been provided of resumes and JD
             * ResumeList: {resume_list}
             * JD: {jd}
+           """
+
+
+def get_candidate_details_user_propmt_msg():
+    """Getting candidate details prompt"""
+    return """
+            Resume: {resume}
            """
 
 
@@ -98,9 +116,22 @@ def get_profile_screen_system_prompt_msg():
             Provide the response in the List of JSON format.
             The each item in the list should contain only the following fields
             * name
-            * email
+            * email - Please keep blank if not available
+            * phone - Please keep blank if not available
             * score - Provide the score out of 100
             * details - Providing the reason for the score. Make it crisp & concise. Please provide as List
+           """
+
+
+def get_candidate_details_system_prompt_msg():
+    """Getting candidate details prompt"""
+    return """
+            You need to analyse the resume and get the candidate details.
+
+            Provide the response in the JSON format only and should contain only the following fields.
+            * name
+            * email - Please keep blank if not available
+            * phone - Please keep blank if not available
            """
 
 
@@ -171,3 +202,39 @@ def get_jd_info_docx(uploaded_jd):
 def get_markdown_description(description):
     """Convert to markdown"""
     return [each_desc for each_desc in description]
+
+
+def get_candidate_details(resumes):
+    """Get candidate details"""
+
+    llm = load_llm()
+    parser = PydanticOutputParser(pydantic_object=Candidate)
+
+    prompt_template = ChatPromptTemplate(
+        [
+            (
+                "system",
+                get_candidate_details_system_prompt_msg(),
+            ),
+            (
+                "system",
+                "Include only candidates details. Please DO NOT provide any other information",
+            ),
+            (
+                "user",
+                get_candidate_details_user_propmt_msg(),
+            ),
+        ]
+    )
+
+    chain = prompt_template | llm | parser
+
+    candidate_details_list = []
+    for each_resume in resumes:
+        resume_text = save_uploaded_files_temporarily_and_get_delete(each_resume)
+        response = chain.invoke({"resume": resume_text})
+        candidate_details = response
+        candidate_details.resume = resume_text
+        candidate_details_list.append(candidate_details)
+
+    return candidate_details_list

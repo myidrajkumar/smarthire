@@ -191,5 +191,38 @@ def get_entire_job_openings_count():
     return query_data(total_jobopenings_query).iloc[0]["total_openings"]
 
 
+def save_candidate_details(jd_id, bu_id, candidate_details_list):
+    """Saving the candidate details"""
+
+    db_connection = connect_db_env()
+    try:
+        with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            sql = """INSERT INTO selected_candidates(bu_id, jd_id, name, email, phone, interview, resume)
+             VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING id;"""
+
+            for candidate in candidate_details_list:
+                cursor.execute(
+                    sql,
+                    (
+                        bu_id,
+                        jd_id,
+                        candidate.name,
+                        candidate.email,
+                        candidate.phone,
+                        "Before Screening",
+                        candidate.resume,
+                    ),
+                )
+                data = cursor.fetchone()
+                candidate.id = data.get("id")
+            db_connection.commit()
+            db_connection.close()
+
+    except Exception as error:
+        print(error)
+
+    return candidate_details_list
+
+
 if __name__ == "__main__":
     connect_db_env()
