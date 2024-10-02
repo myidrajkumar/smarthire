@@ -12,3 +12,5 @@ markdown
 pandas
 matplotlib
 seaborn
+plotly
+transformers
