@@ -4,10 +4,7 @@ import pandas as pd
 import plotly.express as px
 from fastapi import APIRouter
 from fastapi.responses import HTMLResponse
-from transformers import pipeline
-from langchain_core.prompts import ChatPromptTemplate
 
-from llms.ollama_llama import load_llm
 
 router = APIRouter()
 
@@ -42,38 +39,32 @@ def recruitment_chart():
     return HTMLResponse(content=chart_html)
 
 
-nlp = pipeline("text-generation", model="gpt-2")
+def get_chart_generation_sytem_propmt_msg():
+    """Instruct the system to follow this"""
+    return """
+            You are an AI assistant specialized in generating and
+            accurate job descriptions. Your task is to generate a 1 page
+            job description that includes
+            
+            * Job Title - No creativeness
+            * Description - A clear and engaging overview of the job role
+            * Responsibilities - A detailed list of duties and responsibilities associated with the role. Please provide in list format
+            * Skills & Experience - An in-depth section outlining the required skills and experience with as much detail as possible. This should be in list format only
+            
+            Guidelines
+            * The job description is as accurate and precise as possible.
+            * The experience and skills sections are detailed and tailored to the job title.
+            * The language is professional and suitable for a formal job posting.
+            * Provide the response in JSON format only
+            * Use professional and inclusive language suitable for a formal job posting.
+            * Except description, all other fields should be list only
 
 
-def interpret_query(user_input):
-    """Get User Input"""
-    # Example: Process the query to infer user intent (e.g., "Show candidate distribution")
-    response = nlp(user_input, max_length=50, num_return_sequences=1)
-    return response[0]["generated_text"]
-
-
-@router.get("/dynamicchart", response_class=HTMLResponse)
-def dynamic_chart(query: str):
-    """Dynamic Chart"""
-
-    llm = load_llm()
-
-    prompt_template = ChatPromptTemplate(
-        [
-            (
-                "user",
-                query,
-            ),
-        ]
-    )
-
-    chain = prompt_template | llm
-    interpreted_text = interpret_query(query)
-
-    # For simplicity, generate the same chart for now.
-    # Later, this can generate different charts based on `interpreted_text`.
-    chart_html = generate_chart()
-
-    # Return both the interpreted text and the chart
-    html_content = f"<h3>Query Interpretation: {interpreted_text}</h3>" + chart_html
-    return HTMLResponse(content=html_content)
+            The Json field names should be the following only
+            * JobTitle
+            * Description
+            * Responsibilities
+            * SkillsAndExperience
+            
+            The final output should be a well-structured, one-page document ready for publication in job listings.
+           """
