@@ -233,7 +233,7 @@ def get_screened_candidates(jd_id: int, bu_id: int, status: str):
     db_connection = connect_db_env()
     try:
         with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
-            sql = f"SELECT id, name, email, phone, status FROM candidates WHERE jd_id = {jd_id} and bu_id = {bu_id}"
+            sql = f"SELECT id, name, email, phone, status, status_updated_date as last_update_date FROM candidates WHERE jd_id = {jd_id} and bu_id = {bu_id}"
             if status:
                 sql += f" and status = '{status}'"
 
