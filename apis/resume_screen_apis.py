@@ -51,12 +51,9 @@ async def select_candidates(candidates_result: CandidatesResult):
 
 
 @router.get("/screenedcandidates")
-async def screened_candidates(
-    jd_id: int,
-    bu_id: int,
-):
+async def screened_candidates(jd_id: int, bu_id: int, status: Optional[str] = None):
     """Selected candidates"""
 
-    results = get_selected_candidates(jd_id=jd_id, bu_id=bu_id)
+    results = get_selected_candidates(jd_id=jd_id, bu_id=bu_id, status=status)
 
     return {"message": "Success", "data": results}

@@ -227,15 +227,17 @@ def save_candidate_details(jd_id, bu_id, candidate_details_list):
     return candidate_details_list
 
 
-def get_screened_candidates(jd_id: int, bu_id: int, interview: str):
+def get_screened_candidates(jd_id: int, bu_id: int, status: str):
     """Getting only selected candidates"""
 
     db_connection = connect_db_env()
     try:
         with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
-            sql = "SELECT id, name, email, phone FROM selected_candidates WHERE interview = %s and jd_id = %s and bu_id = %s"
+            sql = f"SELECT id, name, email, phone, status FROM candidates WHERE jd_id = {jd_id} and bu_id = {bu_id}"
+            if status:
+                sql += f" and status = '{status}'"
 
-            cursor.execute(sql, (interview, jd_id, bu_id))
+            cursor.execute(sql)
             results = cursor.fetchall()
 
             db_connection.close()

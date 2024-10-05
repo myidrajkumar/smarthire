@@ -256,7 +256,6 @@ def save_selected_candidates(jd_id, bu_id, candidate_status):
     update_candidate_interview_status(jd_id, bu_id, candidate_status)
 
 
-def get_selected_candidates(jd_id, bu_id):
+def get_selected_candidates(jd_id, bu_id, status=None):
     """Selecting first round candidates"""
-    interview = "Preliminary Round: Scheduled"
-    return get_screened_candidates(jd_id, bu_id, interview)
+    return get_screened_candidates(jd_id, bu_id, status)
