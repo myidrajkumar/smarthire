@@ -251,7 +251,9 @@ def save_selected_candidates(jd_id, bu_id, candidate_status):
     """Selecting first round candidates"""
 
     for candidate in candidate_status:
-        candidate.interview_status = f"Screening: {"Selected" if candidate.status else "Rejected"}"
+        candidate.interview_status = (
+            f"Screening: {'Selected' if candidate.status else 'Rejected'}"
+        )
 
     update_candidate_interview_status(jd_id, bu_id, candidate_status)
 
