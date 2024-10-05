@@ -15,6 +15,7 @@ from db.connect import (
     get_screened_candidates,
     save_candidate_details,
     save_candidate_scores,
+    update_candidate_interview_status,
 )
 from llms.groq_gemma_llm import load_llm
 from models.candidate import Candidate
@@ -248,10 +249,11 @@ def get_candidate_details(resumes):
 
 def save_selected_candidates(jd_id, bu_id, candidate_status):
     """Selecting first round candidates"""
-    interview = "Screened: "
-    # Generate Credentials
-    # Schedule interview duration email
-    # Update DB content as scheduled
+
+    for candidate in candidate_status:
+        candidate.interview_status = f"Screening: {"Selected" if candidate.status else "Rejected"}"
+
+    update_candidate_interview_status(jd_id, bu_id, candidate_status)
 
 
 def get_selected_candidates(jd_id, bu_id):

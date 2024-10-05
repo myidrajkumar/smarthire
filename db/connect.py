@@ -264,5 +264,26 @@ def save_candidate_scores(candidate_results):
         print(f"ERROR: While saving candidate scores: {error}")
 
 
+def update_candidate_interview_status(jd_id, bu_id, candidate_status):
+    """Updating interview status"""
+
+    db_connection = connect_db_env()
+    try:
+        with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            sql = """UPDATE candidates SET status = %s where id = %s and bu_id = %s and jd_id = %s"""
+
+            data = [
+                (candidate.interview_status, candidate.id, bu_id, jd_id)
+                for candidate in candidate_status
+            ]
+            cursor.executemany(sql, data)
+            db_connection.commit()
+            db_connection.close()
+
+    except Exception as error:
+        print(f"ERROR: While saving candidate scores: {error}")
+    pass
+
+
 if __name__ == "__main__":
     connect_db_env()
