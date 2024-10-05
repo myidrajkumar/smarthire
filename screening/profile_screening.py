@@ -19,7 +19,11 @@ from db.connect import (
 )
 from llms.groq_gemma_llm import load_llm
 from models.candidate import Candidate
-from utils.file_utils import get_file_content, save_file_content
+from utils.file_utils import (
+    get_file_content,
+    save_file_content,
+    save_files_temporarily_and_get_delete,
+)
 
 TEMP_DIR = "temp"
 
@@ -173,24 +177,6 @@ def save_uploaded_files_temporarily_and_get_delete(uploaded_profile):
     txt = get_file_content(file_path)
     os.remove(file_path)
     return txt
-
-
-def save_files_temporarily_and_get_delete(file_name, file_content):
-    """Storing temporarily uploaded files and retrieve text"""
-    file_path = "".join([TEMP_DIR, "/", file_name])
-
-    save_file_content(file_path=file_path, file_data=file_content)
-    txt = get_file_content(file_path)
-    os.remove(file_path)
-    return txt
-
-
-def get_doc_from_db(jd_id, bu_id):
-    """Storing temporarily uploaded files and retrieve text"""
-    file_path = "".join([TEMP_DIR, "/", uploaded_profile.filename])
-
-    save_file_content(file_path=file_path, file_data=uploaded_profile.file.read())
-    return get_file_content(file_path)
 
 
 def get_jd_info_docx(uploaded_jd):

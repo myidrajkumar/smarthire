@@ -1,9 +1,12 @@
 """Utilities to handle files"""
 
+import os
 import pathlib
 
 import docx
 import pypdf as pdf
+
+TEMP_DIR = "temp"
 
 
 def get_file_content(file_path):
@@ -44,3 +47,14 @@ def save_file_content(file_path, file_data):
 
     with open(file_path, "wb") as file:
         file.write(file_data)
+
+
+def save_files_temporarily_and_get_delete(file_name, file_content):
+    """Storing temporarily uploaded files and retrieve text"""
+
+    file_path = "".join([TEMP_DIR, "/", file_name])
+
+    save_file_content(file_path=file_path, file_data=file_content)
+    txt = get_file_content(file_path)
+    os.remove(file_path)
+    return txt
