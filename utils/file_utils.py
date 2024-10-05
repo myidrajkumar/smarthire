@@ -1,8 +1,9 @@
 """Utilities to handle files"""
 
-import pypdf as pdf
-import docx
 import pathlib
+
+import docx
+import pypdf as pdf
 
 
 def get_file_content(file_path):
@@ -15,13 +16,16 @@ def get_file_content(file_path):
         for para in doc.paragraphs:
             text += para.text
         return text
-    elif file_path.endswith(".pdf"):
+    if file_path.endswith(".pdf"):
         reader = pdf.PdfReader(file_path)
         text = ""
 
         for page in reader.pages:
             text += str(page.extract_text())
         return text
+
+    print(f"ERROR: Unsupported file type: {file_path}")
+    return None
 
 
 def get_file_content_binary(file_path):

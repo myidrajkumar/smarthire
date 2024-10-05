@@ -54,12 +54,12 @@ def get_job_description_sytem_propmt_msg():
             You are an AI assistant specialized in creating comprehensive and
             accurate job descriptions. Your task is to generate a 1 page
             job description that includes
-            
+
             * Job Title - No creativeness
             * Description - A clear and engaging overview of the job role
             * Responsibilities - A detailed list of duties and responsibilities associated with the role. Please provide in list format
             * Skills & Experience - An in-depth section outlining the required skills and experience with as much detail as possible. This should be in list format only
-            
+
             Guidelines
             * The job description is as accurate and precise as possible.
             * The experience and skills sections are detailed and tailored to the job title.
@@ -74,7 +74,7 @@ def get_job_description_sytem_propmt_msg():
             * Description
             * Responsibilities
             * SkillsAndExperience
-            
+
             The final output should be a well-structured, one-page document ready for publication in job listings.
            """
 

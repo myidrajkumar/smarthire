@@ -55,6 +55,7 @@ def get_business_units(bu_id: Optional[int] = None):
 
     except Exception as error:
         print(f"ERROR: While getting business units: {error}")
+        raise error
 
 
 def save_doc_db(bu_id, jd_file, doc_content):
@@ -114,6 +115,7 @@ def get_jd_from_db(jd_id: int, bu_id: int):
         print(
             f"ERROR: While getting a specific JD from a specific business unit: {error}"
         )
+        raise error
 
 
 # Query Data
@@ -247,6 +249,7 @@ def get_screened_candidates(jd_id: int, bu_id: int, status: str):
         print(
             f"ERROR: While getting screened candidates for a specific JD in a specific business unit: {error}"
         )
+        raise error
 
 
 def save_candidate_scores(candidate_results):
@@ -284,7 +287,6 @@ def update_candidate_interview_status(jd_id, bu_id, candidate_status):
 
     except Exception as error:
         print(f"ERROR: While saving candidate scores: {error}")
-    pass
 
 
 if __name__ == "__main__":

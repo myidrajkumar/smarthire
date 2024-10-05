@@ -205,6 +205,7 @@ def save_jd_pdf(llm_response, folder_path, bu_name):
 
 # Helper function to wrap text within the specified width
 def wrap_text(c, text, max_width):
+    """Wrapping text"""
     lines = []
     words = text.split(" ")
     current_line = ""

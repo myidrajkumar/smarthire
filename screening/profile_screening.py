@@ -48,10 +48,9 @@ def profile_screen_results(jd_id, bu_id, resumes):
     parser = PydanticOutputParser(pydantic_object=CandidatesList)
 
     db_result = get_jd_from_db(jd_id, bu_id)
-    file_name = db_result.get("title")
-    file_content = db_result.get("doc")
-
-    jd_txt = save_files_temporarily_and_get_delete(file_name, file_content)
+    jd_txt = save_files_temporarily_and_get_delete(
+        db_result.get("title"), db_result.get("doc")
+    )
 
     candidate_details = get_candidate_details(resumes)
     candidate_details = save_candidate_details(
