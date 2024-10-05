@@ -16,7 +16,7 @@ def connect_db(db_config):
             print("Connected to the PostgreSQL server.")
             return conn
     except (psycopg2.DatabaseError, Exception) as error:
-        print(error)
+        print(f"ERROR: While establishing database connection: {error}")
         raise error
 
 
@@ -33,7 +33,7 @@ def connect_db_env():
             print("Connected to the PostgreSQL server.")
             return conn
     except (psycopg2.DatabaseError, Exception) as error:
-        print(error)
+        print(f"ERROR: While establishing database connection: {error}")
         raise error
 
 
@@ -54,7 +54,7 @@ def get_business_units(bu_id: Optional[int] = None):
             return results
 
     except Exception as error:
-        print(error)
+        print(f"ERROR: While getting business units: {error}")
 
 
 def save_doc_db(bu_id, jd_file, doc_content):
@@ -73,7 +73,7 @@ def save_doc_db(bu_id, jd_file, doc_content):
             db_connection.close()
 
     except Exception as error:
-        print(error)
+        print(f"ERROR: While saving JDs in DB: {error}")
 
 
 def get_jds_for_bu_db(bu_id: int):  # -> Any | None:
@@ -92,7 +92,7 @@ def get_jds_for_bu_db(bu_id: int):  # -> Any | None:
             return results
 
     except Exception as error:
-        print(error)
+        print(f"ERROR: While getting JDs for a specific business unit: {error}")
 
 
 def get_jd_from_db(jd_id: int, bu_id: int):
@@ -111,7 +111,9 @@ def get_jd_from_db(jd_id: int, bu_id: int):
             return results
 
     except Exception as error:
-        print(error)
+        print(
+            f"ERROR: While getting a specific JD from a specific business unit: {error}"
+        )
 
 
 # Query Data
@@ -197,20 +199,21 @@ def save_candidate_details(jd_id, bu_id, candidate_details_list):
     db_connection = connect_db_env()
     try:
         with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
-            sql = """INSERT INTO selected_candidates(bu_id, jd_id, name, email, phone, interview, resume)
-             VALUES(%s, %s, %s, %s, %s, %s, %s) RETURNING id;"""
+            sql = """INSERT INTO candidates(name, email, phone, resume, bu_id, jd_id, status, status_updated_date)
+             VALUES(%s, %s, %s, %s, %s, %s, %s, %s) RETURNING id;"""
 
             for candidate in candidate_details_list:
                 cursor.execute(
                     sql,
                     (
-                        bu_id,
-                        jd_id,
                         candidate.name,
                         candidate.email,
                         candidate.phone,
-                        "Before Screening",
                         candidate.resume,
+                        bu_id,
+                        jd_id,
+                        "Applied",
+                        datetime.now(),
                     ),
                 )
                 data = cursor.fetchone()
@@ -219,7 +222,7 @@ def save_candidate_details(jd_id, bu_id, candidate_details_list):
             db_connection.close()
 
     except Exception as error:
-        print(error)
+        print(f"ERROR: While saving candidates when screening: {error}")
 
     return candidate_details_list
 
@@ -239,7 +242,26 @@ def get_screened_candidates(jd_id: int, bu_id: int, interview: str):
             return results
 
     except Exception as error:
-        print(error)
+        print(
+            f"ERROR: While getting screened candidates for a specific JD in a specific business unit: {error}"
+        )
+
+
+def save_candidate_scores(candidate_results):
+    """Saving the candidate scores"""
+
+    db_connection = connect_db_env()
+    try:
+        with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            sql = """UPDATE candidates SET fit_score = %s where id = %s"""
+
+            data = [(candidate.score, candidate.id) for candidate in candidate_results]
+            cursor.executemany(sql, data)
+            db_connection.commit()
+            db_connection.close()
+
+    except Exception as error:
+        print(f"ERROR: While saving candidate scores: {error}")
 
 
 if __name__ == "__main__":

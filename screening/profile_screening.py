@@ -10,7 +10,12 @@ from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel, RootModel
 
-from db.connect import get_jd_from_db, get_screened_candidates, save_candidate_details
+from db.connect import (
+    get_jd_from_db,
+    get_screened_candidates,
+    save_candidate_details,
+    save_candidate_scores,
+)
 from llms.groq_gemma_llm import load_llm
 from models.candidate import Candidate
 from utils.file_utils import get_file_content, save_file_content
@@ -45,7 +50,7 @@ def profile_screen_results(jd_id, bu_id, resumes):
     file_name = db_result.get("title")
     file_content = db_result.get("doc")
 
-    jd_txt = save_db_files_temporarily_and_get_delete(file_name, file_content)
+    jd_txt = save_files_temporarily_and_get_delete(file_name, file_content)
 
     candidate_details = get_candidate_details(resumes)
     candidate_details = save_candidate_details(
@@ -81,6 +86,7 @@ def profile_screen_results(jd_id, bu_id, resumes):
             for saved_candidate in candidate_details
             if saved_candidate.email == candidate.email
         ][0]
+    save_candidate_scores(candidate_results)
     return sorted(
         candidate_results, key=lambda candidate: candidate.score, reverse=True
     )
@@ -119,7 +125,7 @@ def get_profile_screen_system_prompt_msg():
             * email - Please keep blank if not available
             * phone - Please keep blank if not available
             * score - Provide the score out of 100
-            * details - Providing the reason for the score. Make it crisp & concise. Please provide as List
+            * details - Providing the reason for the score. Please provide as List
            """
 
 
@@ -169,7 +175,7 @@ def save_uploaded_files_temporarily_and_get_delete(uploaded_profile):
     return txt
 
 
-def save_db_files_temporarily_and_get_delete(file_name, file_content):
+def save_files_temporarily_and_get_delete(file_name, file_content):
     """Storing temporarily uploaded files and retrieve text"""
     file_path = "".join([TEMP_DIR, "/", file_name])
 
@@ -240,9 +246,9 @@ def get_candidate_details(resumes):
     return candidate_details_list
 
 
-def save_selected_candidates(jd_id, bu_id, candidate_ids):
+def save_selected_candidates(jd_id, bu_id, candidate_status):
     """Selecting first round candidates"""
-    interview = "Preliminary Round: Scheduled"
+    interview = "Screened: "
     # Generate Credentials
     # Schedule interview duration email
     # Update DB content as scheduled

@@ -122,4 +122,4 @@ def delete_file(file_path: str):
         os.remove(f"{file_path}.pdf")
         os.remove(f"{file_path}.docx")
     except Exception as e:
-        print(f"Error deleting file {file_path}: {e}")
+        print(f"ERROR: Deleting file {file_path}: {e}")

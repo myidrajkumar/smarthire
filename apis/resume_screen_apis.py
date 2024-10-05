@@ -2,6 +2,7 @@
 
 from typing import List
 from fastapi import APIRouter, UploadFile
+from pydantic import BaseModel
 
 from screening.profile_screening import (
     get_selected_candidates,
@@ -20,15 +21,22 @@ async def screen_jd(jd_id: int, bu_id: int, profiles: List[UploadFile]):
     return {"message": "Success", "data": results}
 
 
+class CandidateStatus(BaseModel):
+    """Request Parameters"""
+
+    id: int
+    status: bool
+
+
 @router.post("/selectcandidates")
 async def select_candidates(
     jd_id: int,
     bu_id: int,
-    candidate_ids: List[int],
+    candidate_staus: List[CandidateStatus],
 ):
     """Selected candidates"""
 
-    save_selected_candidates(jd_id=jd_id, bu_id=bu_id, candidate_ids=candidate_ids)
+    save_selected_candidates(jd_id=jd_id, bu_id=bu_id, candidate_status=candidate_staus)
 
     return {"message": "Success"}
 
