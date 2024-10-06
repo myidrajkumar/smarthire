@@ -6,7 +6,13 @@ from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel
 
+from db.connect import (
+    get_interview_questions_from_db,
+    get_jd_from_db,
+    save_question_answers_to_db,
+)
 from llms.ollama_llama import load_llm
+from utils.file_utils import save_files_temporarily_and_get_delete
 
 
 class Question(BaseModel):
@@ -26,7 +32,7 @@ class QuestionsSet(BaseModel):
     questions_set: list[Question]
 
 
-def get_interview_questions(jd_txt):
+def generate_interview_questions(jd_txt):
     """Get Interview Questions"""
     llm = load_llm()
 
@@ -97,3 +103,32 @@ def get_interview_questions_user_propmt_msg():
     return """
             Please generate interview questions for a job description of {job_description}:
            """
+
+
+def save_questions(response, candidate_id, jd_id, bu_id):
+    """Save Questions"""
+
+    save_question_answers_to_db(candidate_id, jd_id, bu_id, response)
+
+
+def get_jd_doc(jd_id, bu_id):
+    """Get JD from DB"""
+    db_result = get_jd_from_db(jd_id, bu_id)
+    jd_txt = save_files_temporarily_and_get_delete(
+        db_result.get("title"), db_result.get("doc")
+    )
+
+    return jd_txt
+
+
+def get_interview_questions(jd_id, bu_id, candidate_id):
+    """Get Questions"""
+    db_result = get_interview_questions_from_db(jd_id, bu_id, candidate_id)
+    assigned_questions = [
+        {
+            "question": row["question"],
+            "options": [row[f"option{i}"] for i in range(1, 5)],
+        }
+        for row in db_result
+    ]
+    return assigned_questions

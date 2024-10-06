@@ -3,11 +3,12 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Exam</title>
+    <title>SmartHire Exam</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+    <link rel='icon' href="{{ url_for('static', path='/favicon.ico')}}"  type='image/x-icon'/>
     <script>
         // Timer script
-        let totalSeconds = 3600; // 1 hour in seconds
+        let totalSeconds = 3600;
         let interval = setInterval(function() {
             let minutes = Math.floor(totalSeconds / 60);
             let seconds = totalSeconds % 60;

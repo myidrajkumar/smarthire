@@ -344,5 +344,26 @@ def save_candidate_credentials(candidateid, username, password):
         print(f"ERROR: While saving candidate credentials: {error}")
 
 
+def get_interview_questions_from_db(jd_id, bu_id, candidate_id):
+    """Get Interview Questions from DB"""
+
+    db_connection = connect_db_env()
+    try:
+        with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
+
+            sql = """SELECT question, option1, option2, option3, option4
+            FROM candidate_questions_answers WHERE candidate_id = %s
+            AND jd_id = %s AND bu_id = %s"""
+
+            cursor.execute(sql, (candidate_id, jd_id, bu_id))
+            results = cursor.fetchall()
+
+            db_connection.close()
+            return results
+
+    except Exception as error:
+        print(f"ERROR: While getting JDs for a specific business unit: {error}")
+
+
 if __name__ == "__main__":
     connect_db_env()
