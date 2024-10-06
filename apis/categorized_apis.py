@@ -4,6 +4,7 @@ import secrets
 from fastapi import APIRouter
 
 from db.connect import get_business_units, get_jds_for_bu_db, save_candidate_credentials
+from utils.email_utils import send_exam_email
 
 router = APIRouter()
 
@@ -30,4 +31,5 @@ async def generate_credentials(candidateid: int):
     username = f"user_{secrets.token_hex(4)}"
     password = secrets.token_hex(8)
     save_candidate_credentials(candidateid, username, password)
+    send_exam_email("myidrajkumar@gmail.com", "test", username, password)
     return {"username": username, "password": password}
