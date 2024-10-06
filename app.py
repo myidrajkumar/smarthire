@@ -8,7 +8,7 @@ from apis import (
     categorized_apis,
     data_visualizations,
     jd_generator_apis,
-    preliminary_questions,
+    preliminary_questions_api,
     resume_screen_apis,
 )
 
@@ -19,7 +19,7 @@ app.include_router(jd_generator_apis.router)
 app.include_router(resume_screen_apis.router)
 app.include_router(categorized_apis.router)
 app.include_router(data_visualizations.router)
-app.include_router(preliminary_questions.router)
+app.include_router(preliminary_questions_api.router)
 
 if __name__ == "__main__":
     import uvicorn
