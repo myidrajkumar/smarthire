@@ -129,7 +129,7 @@ def get_total_applications_count():
     """Getting applications count"""
 
     total_applications_query = """
-    SELECT COUNT(application_id) AS total_applications 
+    SELECT COUNT(application_id) AS total_applications
     FROM applications;
     """
 
@@ -188,7 +188,7 @@ def get_entire_job_openings_count():
     """Getting entire job openings count"""
 
     total_jobopenings_query = """
-    SELECT COUNT(job_id) AS total_openings 
+    SELECT COUNT(job_id) AS total_openings
     FROM job_openings;
     """
 

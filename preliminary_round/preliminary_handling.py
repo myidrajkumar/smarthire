@@ -67,7 +67,7 @@ def get_interview_questions_sytem_propmt_msg():
     Following are TODOs:
     * The questions should be of MCQs only
     * Each MCQ should contain just 4 options only
-    * The candidate is having the time frame of just 30 minutes only. 
+    * The candidate is having the time frame of just 30 minutes only.
     * You provide the correct answer to the question also with the Option.
     * The questions complexity should be based on years of experinece needed
     * If needed experience is 0 ~ 1 year, the complexity should be low and should contain 28 questions.

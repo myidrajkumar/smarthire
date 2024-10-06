@@ -1,6 +1,6 @@
 """Questions Generation"""
 
-from datetime import datetime
+from datetime import datetime, timezone
 import time
 from fastapi import APIRouter, BackgroundTasks, Request
 from fastapi.responses import HTMLResponse
@@ -36,7 +36,7 @@ async def generate_questions(jd_id: int, bu_id: int, candidate_id: int):
 async def start_exam(candidateid: str, background_tasks: BackgroundTasks):
     """Start the exam and set a 1-hour timer"""
     background_tasks.add_task(exam_timer)
-    attending_candidates.update({candidateid: datetime.now(xtimezone.utc)})
+    attending_candidates.update({candidateid: datetime.now(timezone.utc)})
     return {"message": "Exam started, you have 1 hour to complete it"}
 
 
