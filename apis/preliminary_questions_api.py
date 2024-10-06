@@ -1,12 +1,14 @@
 """Questions Generation"""
 
 from datetime import datetime, timezone
-import time
-from fastapi import APIRouter, BackgroundTasks, Request
+from typing import List
+from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
+from pydantic import BaseModel
 
 from preliminary_round.preliminary_handling import (
+    generate_credentials_and_send_email,
     generate_interview_questions,
     get_interview_questions,
     get_jd_doc,
@@ -18,21 +20,30 @@ templates = Jinja2Templates(directory="templates")
 attending_candidates = {}
 
 
-@router.get("/generatequestions")
-async def generate_questions(jd_id: int, bu_id: int, candidate_id: int):
+class FirstRound(BaseModel):
+    """Request Parameters"""
+
+    jd_id: int
+    bu_id: int
+    candidate_list: List[int]
+
+
+@router.post("/sendpreliminaryquestions")
+async def send_preliminary_questions(request: FirstRound):
     """Generate Questions"""
 
-    jd_txt = get_jd_doc(jd_id, bu_id)
-    response = generate_interview_questions(jd_txt)
+    jd_id, bu_id, candidate_list = request.jd_id, request.bu_id, request.candidate_list
+    jd_txt = get_jd_doc(request.jd_id, request.bu_id)
+    response = generate_interview_questions(jd_txt, len(candidate_list))
+    save_questions(response, candidate_list, jd_id, bu_id)
 
-    save_questions(response, candidate_id, jd_id, bu_id)
-    return {"message": "Success", "data": response}
+    generate_credentials_and_send_email(candidate_list, jd_id, bu_id)
+    return {"message": "Success"}
 
 
 @router.post("/startexam/{candidateid}")
-async def start_exam(candidateid: str, background_tasks: BackgroundTasks):
+async def start_exam(candidateid: str):
     """Start the exam and set a 1-hour timer"""
-    background_tasks.add_task(exam_timer)
     attending_candidates.update({candidateid: datetime.now(timezone.utc)})
     return {"message": "Exam started, you have 1 hour to complete it"}
 
@@ -44,9 +55,3 @@ async def show_exam(request: Request, jd_id: int, bu_id: int, candidate_id: int)
     return templates.TemplateResponse(
         "exam.html", {"request": request, "questions": assigned_questions}
     )
-
-
-async def exam_timer():
-    """Timer to exam"""
-    time.sleep(3600)
-    print("Time's up!")

@@ -3,7 +3,6 @@
 from fastapi import FastAPI
 from fastapi.staticfiles import StaticFiles
 
-
 from apis import (
     categorized_apis,
     data_visualizations,

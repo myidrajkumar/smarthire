@@ -7,11 +7,15 @@ from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel
 
 from db.connect import (
+    get_candidate_from_db,
     get_interview_questions_from_db,
     get_jd_from_db,
+    save_candidate_credentials,
     save_question_answers_to_db,
 )
 from llms.ollama_llama import load_llm
+from utils.credential_utils import generate_credentials
+from utils.email_utils import send_exam_email
 from utils.file_utils import save_files_temporarily_and_get_delete
 
 
@@ -23,16 +27,22 @@ class Question(BaseModel):
     correct_answer: str
 
 
+class Candidate(BaseModel):
+    """Candidate"""
+
+    questions_set: List[Question]
+
+
 class QuestionsSet(BaseModel):
     """Questions Set"""
 
     job_title: str
     time_limit: str
     instructions: str
-    questions_set: list[Question]
+    candidates_set: list[Candidate]
 
 
-def generate_interview_questions(jd_txt):
+def generate_interview_questions(jd_txt, candidate_count):
     """Get Interview Questions"""
     llm = load_llm()
 
@@ -55,6 +65,7 @@ def generate_interview_questions(jd_txt):
     response = chain.invoke(
         {
             "job_description": jd_txt,
+            "candidate_count": candidate_count,
         }
     )
 
@@ -63,37 +74,41 @@ def generate_interview_questions(jd_txt):
 
 def get_interview_questions_sytem_propmt_msg():
     """Instruct the system to follow this"""
+    # 28, 25, 22, 20, 18, 17
     return """
     You are an AI assistant specialized in generating interview questions
     based on job description. Your goal is to provide a comprehensive and
     accurate set of questions that can be used to assess the suitability of a
-    candidate for a particular job role. From the JD, just use the 'Skills'
+    candidates for a particular job role. From the JD, just use the 'Skills'
     section to generate interview questions. DO NOT USE ANY OTHER SECTIONS
 
     Following are TODOs:
     * The questions should be of MCQs only
     * Each MCQ should contain just 4 options only
-    * The candidate is having the time frame of just 30 minutes only.
+    * The candidates are having the time frame of just 30 minutes only.
     * You provide the correct answer to the question also with the Option.
     * The questions complexity should be based on years of experinece needed
-    * If needed experience is 0 ~ 1 year, the complexity should be low and should contain 28 questions.
-    * If needed experience is 1 ~ 3 years, the complexity should be medium and should contain 25 questions.
-    * If needed experience is 3 ~ 5 years, the complexity should be high and should contain 22 questions.
-    * If needed experience is 5 ~ 8 years, the complexity should be more high and should contain 20 questions.
-    * If needed experience is 8 ~ 11 years, the complexity should be tough and should contain 18 questions.
-    * If needed experience is more than 11 years, the complexity should be critical and should contain 17 questions.
+    * If needed experience is 0 ~ 1 year, the complexity should be low and should contain 3 questions.
+    * If needed experience is 1 ~ 3 years, the complexity should be medium and should contain 3 questions.
+    * If needed experience is 3 ~ 5 years, the complexity should be high and should contain 3 questions.
+    * If needed experience is 5 ~ 8 years, the complexity should be more high and should contain 3 questions.
+    * If needed experience is 8 ~ 11 years, the complexity should be tough and should contain 3 questions.
+    * If needed experience is more than 11 years, the complexity should be critical and should contain 3 questions.
     * DO NOT PROVIDE the reason of why the answer is correct
 
-    Provide the response in JSON format with the following fields
+    Each item in the list has to be in JSON format with the following fields
     * job_title
     * time_limit - This must be string which should contain minutes
     * instructions
+    * candidates_set - This should be list of candidates. Please refer below how candidate format should be
+
+    Each candidate should contain list of questions and SHOULD NOT CONTAIN any other fields.
     * questions_set - This should be list of questions. Please refer below how question format should be
 
-    Each question in questions_set should be in JSON format with the following fields
+    Each question in questions list should be in JSON format with the following fields
     * question
     * options - This should be in the list format
-    * correct_answer - This should contain just correct answer
+    * correct_answer - This should contain EXACT CORRECT ANSWER VALUE and it should not be option value
 
     """
 
@@ -101,14 +116,15 @@ def get_interview_questions_sytem_propmt_msg():
 def get_interview_questions_user_propmt_msg():
     """User prompt"""
     return """
-            Please generate interview questions for a job description of {job_description}:
+            Please generate interview questions for a job description of {job_description}
+            and generate the questions to the candidate count of {candidate_count}
            """
 
 
-def save_questions(response, candidate_id, jd_id, bu_id):
+def save_questions(response, candidate_list, jd_id, bu_id):
     """Save Questions"""
 
-    save_question_answers_to_db(candidate_id, jd_id, bu_id, response)
+    save_question_answers_to_db(candidate_list, jd_id, bu_id, response)
 
 
 def get_jd_doc(jd_id, bu_id):
@@ -132,3 +148,31 @@ def get_interview_questions(jd_id, bu_id, candidate_id):
         for row in db_result
     ]
     return assigned_questions
+
+
+class CandidateEmail(BaseModel):
+    """Candidate Email"""
+
+    name: str
+    username: str
+    password: str
+    exam_link: str
+    email: str
+
+
+def generate_credentials_and_send_email(candidate_list, jd_id, bu_id):
+    """Generate credentials and send email"""
+    for candidate_id in candidate_list:
+        username, password = generate_credentials()
+        save_candidate_credentials(candidate_id, username, password)
+
+        candidate_result = get_candidate_from_db(candidate_id)
+
+        candidate = CandidateEmail(
+            name=candidate_result.get("name"),
+            username=username,
+            password=password,
+            exam_link=f"http://127.0.0.1:8000/triggerexam?jd_id={jd_id}&bu_id={bu_id}&candidate_id={candidate_id}",
+            email=candidate_result.get("email"),
+        )
+        send_exam_email(candidate)

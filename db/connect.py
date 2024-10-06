@@ -286,10 +286,10 @@ def update_candidate_interview_status(jd_id, bu_id, candidate_status):
             db_connection.close()
 
     except Exception as error:
-        print(f"ERROR: While saving candidate scores: {error}")
+        print(f"ERROR: While updating interview status: {error}")
 
 
-def save_question_answers_to_db(candidate_id, jd_id, bu_id, response):
+def save_question_answers_to_db(candidate_list, jd_id, bu_id, response):
     """Inserting correct answers"""
 
     db_connection = connect_db_env()
@@ -302,27 +302,33 @@ def save_question_answers_to_db(candidate_id, jd_id, bu_id, response):
             ) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
 
-            data = [
-                (
-                    candidate_id,
-                    jd_id,
-                    bu_id,
-                    question_info.question,
-                    question_info.options[0],
-                    question_info.options[1],
-                    question_info.options[2],
-                    question_info.options[3],
-                    question_info.correct_answer,
+            data = []
+            for candidate_id in candidate_list:
+                data.extend(
+                    [
+                        (
+                            candidate_id,
+                            jd_id,
+                            bu_id,
+                            question_info.question,
+                            question_info.options[0],
+                            question_info.options[1],
+                            question_info.options[2],
+                            question_info.options[3],
+                            question_info.correct_answer,
+                        )
+                        for candidate_info in response.candidates_set
+                        for question_info in candidate_info.questions_set
+                    ]
                 )
-                for question_info in response.questions_set
-            ]
+
             cursor.executemany(sql, data)
 
             db_connection.commit()
             db_connection.close()
 
     except Exception as error:
-        print(f"ERROR: While saving candidate scores: {error}")
+        print(f"ERROR: While saving question answers: {error}")
 
 
 def save_candidate_credentials(candidateid, username, password):
@@ -362,7 +368,27 @@ def get_interview_questions_from_db(jd_id, bu_id, candidate_id):
             return results
 
     except Exception as error:
-        print(f"ERROR: While getting JDs for a specific business unit: {error}")
+        print(f"ERROR: While getting interview questions: {error}")
+
+
+def get_candidate_from_db(candidate_id: int):
+    """Get Candidate from DB"""
+
+    db_connection = connect_db_env()
+    try:
+        with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
+
+            sql = f"""SELECT name, email, phone
+            FROM candidates WHERE id = {candidate_id}"""
+
+            cursor.execute(sql)
+            results = cursor.fetchone()
+
+            db_connection.close()
+            return results
+
+    except Exception as error:
+        print(f"ERROR: While getting candidates: {error}")
 
 
 if __name__ == "__main__":
