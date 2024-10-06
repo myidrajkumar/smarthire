@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Exam</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+    <script>
+        // Timer script
+        let totalSeconds = 3600; // 1 hour in seconds
+        let interval = setInterval(function() {
+            let minutes = Math.floor(totalSeconds / 60);
+            let seconds = totalSeconds % 60;
+            document.getElementById("timer").innerHTML = minutes + " minutes " + seconds + " seconds left";
+            totalSeconds--;
+            if (totalSeconds < 0) {
+                clearInterval(interval);
+                document.getElementById("exam-form").submit(); // Auto-submit the form when time is up
+            }
+        }, 1000);
+    </script>
+</head>
+<body>
+    <section class="section">
+        <div class="container">
+            <h1 class="title">Online Exam</h1>
+            <p class="subtitle">You have 1 hour to complete the exam. The timer is running!</p>
+            <div class="notification is-danger" id="timer"></div>
+            
+            <form action="/submit_answers/" method="post" id="exam-form">
+                {% for question in questions %}
+                <div class="box">
+                    <h2 class="subtitle">Question {{ loop.index }}: {{ question.question }}</h2>
+                    <div class="field">
+                        {% for option in question.options %}
+                        <div class="control">
+                            <label class="radio">
+                                <input type="radio" name="answers_{{ loop.index }}" value="{{ option }}" required>
+                                {{ option }}
+                            </label>
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+                {% endfor %}
+                <button type="submit" class="button is-primary">Submit Answers</button>
+            </form>
+        </div>
+    </section>
+</body>
+</html>

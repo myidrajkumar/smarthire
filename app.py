@@ -1,6 +1,8 @@
 """Python JD Generator"""
 
 from fastapi import FastAPI
+from fastapi.staticfiles import StaticFiles
+
 
 from apis import (
     categorized_apis,
@@ -11,6 +13,7 @@ from apis import (
 )
 
 app = FastAPI()
+app.mount("/static", StaticFiles(directory="static"), name="static")
 
 app.include_router(jd_generator_apis.router)
 app.include_router(resume_screen_apis.router)

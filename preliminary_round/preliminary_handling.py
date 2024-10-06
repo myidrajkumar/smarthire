@@ -87,7 +87,7 @@ def get_interview_questions_sytem_propmt_msg():
     Each question in questions_set should be in JSON format with the following fields
     * question
     * options - This should be in the list format
-    * correct_answer - This should contain just correct answer option
+    * correct_answer - This should contain just correct answer
 
     """
 

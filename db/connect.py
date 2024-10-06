@@ -289,16 +289,34 @@ def update_candidate_interview_status(jd_id, bu_id, candidate_status):
         print(f"ERROR: While saving candidate scores: {error}")
 
 
-def save_question_answers_to_db(candidate_id, jd_id, bu_id, correct_answer_list):
+def save_question_answers_to_db(candidate_id, jd_id, bu_id, response):
     """Inserting correct answers"""
 
     db_connection = connect_db_env()
     try:
         with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
-            sql = """INSERT INTO candidate_questions_answers(candidate_id, jd_id, bu_id, correct_answer_list)
-            VALUES(%s, %s, %s, %s)"""
+            sql = """
+            INSERT INTO candidate_questions_answers(
+            candidate_id, jd_id, bu_id, question,
+            option1, option2, option3, option4, answer
+            ) VALUES(%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """
 
-            cursor.execute(sql, (candidate_id, jd_id, bu_id, correct_answer_list))
+            data = [
+                (
+                    candidate_id,
+                    jd_id,
+                    bu_id,
+                    question_info.question,
+                    question_info.options[0],
+                    question_info.options[1],
+                    question_info.options[2],
+                    question_info.options[3],
+                    question_info.correct_answer,
+                )
+                for question_info in response.questions_set
+            ]
+            cursor.executemany(sql, data)
 
             db_connection.commit()
             db_connection.close()
