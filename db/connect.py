@@ -325,5 +325,24 @@ def save_question_answers_to_db(candidate_id, jd_id, bu_id, response):
         print(f"ERROR: While saving candidate scores: {error}")
 
 
+def save_candidate_credentials(candidateid, username, password):
+    """Saving the candidate credentials"""
+
+    db_connection = connect_db_env()
+    try:
+        with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            sql = """
+            INSERT INTO candidate_credentials(
+            candidate_id, username, password) VALUES(%s, %s, %s)
+            """
+
+            cursor.execute(sql, (candidateid, username, password))
+            db_connection.commit()
+            db_connection.close()
+
+    except Exception as error:
+        print(f"ERROR: While saving candidate credentials: {error}")
+
+
 if __name__ == "__main__":
     connect_db_env()
