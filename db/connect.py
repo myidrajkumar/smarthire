@@ -431,5 +431,26 @@ def get_answers_from_db(candidate_id, jd_id, bu_id):
         raise error
 
 
+def update_candidate_preliminart_interview_status_db(
+    jd_id, bu_id, candidate_list, status
+):
+    """Update candidate status"""
+
+    db_connection = connect_db_env()
+    try:
+        with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            sql = """UPDATE candidates SET status = %s where id = %s and bu_id = %s and jd_id = %s"""
+
+            data = [
+                (status, candidate_id, bu_id, jd_id) for candidate_id in candidate_list
+            ]
+            cursor.executemany(sql, data)
+            db_connection.commit()
+            db_connection.close()
+
+    except Exception as error:
+        print(f"ERROR: While updating interview status: {error}")
+
+
 if __name__ == "__main__":
     connect_db_env()

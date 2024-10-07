@@ -13,6 +13,7 @@ from db.connect import (
     get_jd_from_db,
     save_candidate_credentials,
     save_question_answers_to_db,
+    update_candidate_preliminart_interview_status_db,
 )
 from llms.groq_llama_llm import load_llm
 from utils.credential_utils import generate_credentials
@@ -183,3 +184,11 @@ def get_answers(candidate_id, jd_id, bu_id):
     """Getting answers"""
     db_results = get_answers_from_db(candidate_id, jd_id, bu_id)
     return [row.get("answer") for row in db_results]
+
+
+def update_candidate_preliminart_interview_status(jd_id, bu_id, candidate_list):
+    """Update the status of the candidates"""
+    status = "Preliminary: Invite Sent"
+    update_candidate_preliminart_interview_status_db(
+        jd_id, bu_id, candidate_list, status
+    )

@@ -14,6 +14,7 @@ from preliminary_round.preliminary_handling import (
     get_interview_questions,
     get_jd_doc,
     save_questions,
+    update_candidate_preliminart_interview_status,
 )
 
 router = APIRouter()
@@ -39,6 +40,7 @@ async def send_preliminary_questions(request: FirstRound):
     save_questions(response, candidate_list, jd_id, bu_id)
 
     generate_credentials_and_send_email(candidate_list, jd_id, bu_id)
+    update_candidate_preliminart_interview_status(jd_id, bu_id, candidate_list)
     return {"message": "Success"}
 
 
