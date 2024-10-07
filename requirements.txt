@@ -8,7 +8,9 @@ fastapi[all]
 reportlab
 pypdf
 psycopg2-binary
+types-psycopg2
 markdown
 pandas
+pandas-stubs
 plotly
 jinja2
