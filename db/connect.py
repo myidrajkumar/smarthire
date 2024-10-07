@@ -391,5 +391,26 @@ def get_candidate_from_db(candidate_id: int):
         print(f"ERROR: While getting candidates: {error}")
 
 
+def validate_user_credentials(username, password):
+    """Validate user credentials"""
+
+    db_connection = connect_db_env()
+    try:
+        with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
+
+            sql = """SELECT username FROM candidate_credentials
+            WHERE username = %s AND password = %s"""
+
+            cursor.execute(sql, (username, password))
+            results = cursor.fetchone()
+
+            db_connection.close()
+            print("DB:", results)
+            return results.get("username") is not None
+
+    except Exception as error:
+        print(f"ERROR: While getting candidates: {error}")
+
+
 if __name__ == "__main__":
     connect_db_env()

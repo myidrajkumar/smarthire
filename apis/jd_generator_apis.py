@@ -67,7 +67,7 @@ async def download_jd(
 @router.get("/specificjd")
 async def get_specific_jd(
     jd_id: int,
-    bu_id: Optional[int] = None,
+    bu_id: Optional[int] = 1,
 ):
     """Serving PDF Response"""
 
