@@ -10,21 +10,21 @@ def send_exam_email(candidate_details):
     """Sending Email"""
 
     message = f"""
-    Hello {candidate_details.name},</br></br>
+    Hello {candidate_details.name},<br/><br/>
 
-    You have been shortlisted for the next round of recruitment with us.</br>
-    As part of preliminary round, you need to attend the following exam.</br></br>
+    You have been shortlisted for the next round of recruitment with us.<br/>
+    As part of preliminary round, you need to attend the following exam.<br/><br/>
 
-    <strong>Note:</strong> This link is valid for just <strong>2 days</strong> and will expire on <strong>{date.today() + timedelta(days=2)} 23:59:59</strong></br></br>
+    <strong>Note:</strong> This link is valid for just <strong>2 days</strong> and will expire on <strong>{date.today() + timedelta(days=2)} 23:59:59</strong><br/><br/>
 
-    We have generated credentils. Please enter these when you are attending.</br></br>
+    We have generated credentils. Please enter these when you are attending.<br/><br/>
 
-    Please find the exam link and credentials below.</br></br>
+    Please find the exam link and credentials below.<br/><br/>
 
-    <strong>Exam Link:</strong> <a href={candidate_details.exam_link} target='_blank'>SmartHire</a></br>
+    <strong>Exam Link:</strong> <a href={candidate_details.exam_link} target='_blank'>SmartHire</a><br/>
 
-    <strong>Username:</strong> {candidate_details.username}</br>
-    <strong>Password:</strong> {candidate_details.password}</br>
+    <strong>Username:</strong> {candidate_details.username}<br/>
+    <strong>Password:</strong> {candidate_details.password}<br/>
 
     Good luck!
     """

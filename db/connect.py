@@ -405,11 +405,30 @@ def validate_user_credentials(username, password):
             results = cursor.fetchone()
 
             db_connection.close()
-            print("DB:", results)
             return results.get("username") is not None
 
     except Exception as error:
         print(f"ERROR: While getting candidates: {error}")
+
+
+def get_answers_from_db(candidate_id, jd_id, bu_id):
+    """Getting answers from the database"""
+
+    db_connection = connect_db_env()
+    try:
+        with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            sql = """SELECT answer FROM candidate_questions_answers WHERE candidate_id = %s
+            AND jd_id = %s and bu_id = %s"""
+
+            cursor.execute(sql, (candidate_id, jd_id, bu_id))
+            results = cursor.fetchall()
+
+            db_connection.close()
+            return results
+
+    except Exception as error:
+        print(f"ERROR: While getting business units: {error}")
+        raise error
 
 
 if __name__ == "__main__":

@@ -7,13 +7,14 @@ from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel
 
 from db.connect import (
+    get_answers_from_db,
     get_candidate_from_db,
     get_interview_questions_from_db,
     get_jd_from_db,
     save_candidate_credentials,
     save_question_answers_to_db,
 )
-from llms.ollama_llama import load_llm
+from llms.groq_llama_llm import load_llm
 from utils.credential_utils import generate_credentials
 from utils.email_utils import send_exam_email
 from utils.file_utils import save_files_temporarily_and_get_delete
@@ -176,3 +177,9 @@ def generate_credentials_and_send_email(candidate_list, jd_id, bu_id):
             email=candidate_result.get("email"),
         )
         send_exam_email(candidate)
+
+
+def get_answers(candidate_id, jd_id, bu_id):
+    """Getting answers"""
+    db_results = get_answers_from_db(candidate_id, jd_id, bu_id)
+    return [row.get("answer") for row in db_results]
