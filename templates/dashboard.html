@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Recruitment Dashboard</title>
+    <link rel="stylesheet" href="dashboardstyles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <!-- Sidebar Menu -->
+    <div class="sidebar">
+        <h2>Recruitment Dashboard</h2>
+        <ul>
+            <li><a href="#kpis">KPIs</a></li>
+            <li><a href="#job-analytics">Job-Specific Analytics</a></li>
+            <li><a href="#sourcing-analytics">Sourcing Analytics</a></li>
+            <li><a href="#screening-analytics">Screening & Interview</a></li>
+            <li><a href="#diversity-analytics">Diversity & Inclusion</a></li>
+            <li><a href="#compliance-analytics">Compliance & Legal</a></li>
+        </ul>
+    </div>
+
+    <!-- Main Content Area -->
+    <div class="main-content">
+        <!-- Top-Level KPIs -->
+        <section id="kpis" class="panel">
+            <h3>Key Performance Indicators</h3>
+            <div class="kpi-container">
+                <div class="kpi-card">
+                    <h4>Total Open Positions</h4>
+                    <p id="open-positions">50</p>
+                </div>
+                <div class="kpi-card">
+                    <h4>Total Candidates Sourced</h4>
+                    <p id="candidates-sourced">500</p>
+                </div>
+                <div class="kpi-card">
+                    <h4>Offer Acceptance Rate</h4>
+                    <p id="offer-acceptance-rate">85%</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Job-Specific Analytics -->
+        <section id="job-analytics" class="panel">
+            <h3>Job-Specific Analytics</h3>
+            <canvas id="pipelineChart"></canvas>
+        </section>
+
+        <!-- Candidate Sourcing Analytics -->
+        <section id="sourcing-analytics" class="panel">
+            <h3>Candidate Sourcing Analytics</h3>
+            <canvas id="sourceChart"></canvas>
+        </section>
+
+        <!-- Screening & Interview Analytics -->
+        <section id="screening-analytics" class="panel">
+            <h3>Screening & Interview Analytics</h3>
+            <canvas id="screeningChart"></canvas>
+        </section>
+
+        <!-- Diversity & Inclusion Metrics -->
+        <section id="diversity-analytics" class="panel">
+            <h3>Diversity & Inclusion Metrics</h3>
+            <canvas id="diversityChart"></canvas>
+        </section>
+
+        <!-- Compliance & Legal -->
+        <section id="compliance-analytics" class="panel">
+            <h3>Compliance & Legal</h3>
+            <p>EEO and GDPR compliance data will be shown here.</p>
+        </section>
+    </div>
+
+    <script src="dashboardscript.js"></script>
+</body>
+</html>

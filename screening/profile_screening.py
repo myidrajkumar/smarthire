@@ -14,7 +14,7 @@ from db.connect import (
     get_jd_from_db,
     get_screened_candidates,
     save_candidate_details,
-    save_candidate_scores,
+    save_all_candidates_scores_with_status,
     update_candidate_interview_status,
 )
 from llms.groq_gemma_llm import load_llm
@@ -90,7 +90,7 @@ def profile_screen_results(jd_id, bu_id, resumes):
             for saved_candidate in candidate_details
             if saved_candidate.email == candidate.email
         ][0]
-    save_candidate_scores(candidate_results)
+    save_all_candidates_scores_with_status(candidate_results, "Screened")
     return sorted(
         candidate_results, key=lambda candidate: candidate.score, reverse=True
     )

@@ -7,6 +7,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from pydantic import BaseModel
 
+from db.connect import save_candidate_score_with_status
 from preliminary_round.preliminary_handling import (
     generate_credentials_and_send_email,
     generate_interview_questions,
@@ -98,6 +99,8 @@ async def submit_answers(submission: Submission):
     )
 
     # Store the result in the database
-    # db.save_result(candidate_id, score)
+    save_candidate_score_with_status(
+        candidate_id, f"{score}/{len(correct_answers)}", "Preliminary: Attended"
+    )
 
     return {"score": score, "out_of": len(correct_answers)}

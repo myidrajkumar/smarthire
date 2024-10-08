@@ -252,16 +252,35 @@ def get_screened_candidates(jd_id: int, bu_id: int, status: str):
         raise error
 
 
-def save_candidate_scores(candidate_results):
+def save_all_candidates_scores_with_status(candidate_results, status):
     """Saving the candidate scores"""
 
     db_connection = connect_db_env()
     try:
         with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
-            sql = """UPDATE candidates SET fit_score = %s where id = %s"""
+            sql = """UPDATE candidates SET fit_score = %s, status = %s where id = %s"""
 
-            data = [(candidate.score, candidate.id) for candidate in candidate_results]
+            data = [
+                (candidate.score, status, candidate.id)
+                for candidate in candidate_results
+            ]
             cursor.executemany(sql, data)
+            db_connection.commit()
+            db_connection.close()
+
+    except Exception as error:
+        print(f"ERROR: While saving candidate scores: {error}")
+
+
+def save_candidate_score_with_status(candidate_id, score, status):
+    """Saving the candidate score with status"""
+
+    db_connection = connect_db_env()
+    try:
+        with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            sql = """UPDATE candidates SET fit_score = %s , status = %s where id = %s"""
+
+            cursor.execute(sql, (score, status, candidate_id))
             db_connection.commit()
             db_connection.close()
 
@@ -431,7 +450,7 @@ def get_answers_from_db(candidate_id, jd_id, bu_id):
         raise error
 
 
-def update_candidate_preliminart_interview_status_db(
+def update_candidate_preliminary_interview_status_db(
     jd_id, bu_id, candidate_list, status
 ):
     """Update candidate status"""
@@ -450,6 +469,429 @@ def update_candidate_preliminart_interview_status_db(
 
     except Exception as error:
         print(f"ERROR: While updating interview status: {error}")
+
+
+def get_kpis_from_db():
+    """Getting kpis from DB"""
+
+    db_connection = connect_db_env()
+    try:
+        with db_connection.cursor() as cursor:
+            # Query for total open positions
+            cursor.execute(
+                "SELECT COUNT(*) FROM visualization_jobs WHERE status = 'open'"
+            )
+            total_open_positions = cursor.fetchone()[0]
+
+            # Query for total candidates sourced
+            cursor.execute("SELECT COUNT(*) FROM visualization_candidates")
+            total_candidates_sourced = cursor.fetchone()[0]
+
+            # Query for offer acceptance rate
+            cursor.execute(
+                "SELECT COUNT(*) FROM visualization_offers WHERE accepted = TRUE"
+            )
+            offers_accepted = cursor.fetchone()[0]
+
+            cursor.execute("SELECT COUNT(*) FROM visualization_offers")
+            total_offers = cursor.fetchone()[0]
+
+            offer_acceptance_rate = (
+                (offers_accepted / total_offers) * 100 if total_offers > 0 else 0
+            )
+
+            db_connection.commit()
+            db_connection.close()
+
+    except Exception as error:
+        print(f"ERROR: While updating interview status: {error}")
+
+    return {
+        "total_open_positions": total_open_positions,
+        "total_candidates_sourced": total_candidates_sourced,
+        "offer_acceptance_rate": offer_acceptance_rate,
+    }
+
+
+def get_job_analytics_from_db(job_id: int):
+    """Getting analytics for a given job"""
+
+    db_connection = connect_db_env()
+    try:
+        with db_connection.cursor() as cursor:
+            # Query for application volume per job
+            cursor.execute(
+                "SELECT COUNT(*) FROM visualization_applications WHERE job_id = %s",
+                (job_id,),
+            )
+            application_volume = cursor.fetchone()[0]
+
+            # Query for pipeline health (candidates at different stages)
+            cursor.execute(
+                """
+                SELECT 
+                    application_status, COUNT(*)
+                FROM visualization_applications
+                WHERE job_id = %s
+                GROUP BY application_status
+            """,
+                (job_id,),
+            )
+            pipeline_health = cursor.fetchall()
+
+            # Query for job description effectiveness (application click-through rate, if tracked)
+            # This assumes a table where job view data is stored (job_views)
+            cursor.execute(
+                """
+                SELECT views, applications
+                FROM visualization_job_views
+                WHERE job_id = %s
+            """,
+                (job_id,),
+            )
+            job_views = cursor.fetchone()
+            if job_views:
+                views, applications = job_views
+                job_description_effectiveness = (
+                    (applications / views) * 100 if views > 0 else 0
+                )
+            else:
+                job_description_effectiveness = 0
+
+            db_connection.commit()
+            db_connection.close()
+
+    except Exception as error:
+        print(f"ERROR: While updating interview status: {error}")
+
+    return {
+        "application_volume": application_volume,
+        "pipeline_health": dict(pipeline_health),
+        "job_description_effectiveness": job_description_effectiveness,
+    }
+
+
+def get_sourcing_analytics_from_db():
+    """Getting source analytics from database"""
+
+    db_connection = connect_db_env()
+    try:
+        with db_connection.cursor() as cursor:
+            # Query for source breakdown
+            cursor.execute(
+                """
+                SELECT source, COUNT(*)
+                FROM visualization_applications applications
+                JOIN visualization_candidates candidates ON applications.candidate_id = candidates.candidate_id
+                GROUP BY source
+            """
+            )
+            source_breakdown = cursor.fetchall()
+
+            # Query for geographical sourcing
+            cursor.execute(
+                """
+                SELECT location, COUNT(*)
+                FROM visualization_candidates
+                GROUP BY location
+            """
+            )
+            geographical_sourcing = cursor.fetchall()
+
+            # Query for cost per source (assuming cost data exists in sourcing_costs table)
+            cursor.execute(
+                """
+                SELECT source, SUM(cost)
+                FROM visualization_sourcing_costs
+                GROUP BY source
+            """
+            )
+            cost_per_source = cursor.fetchall()
+
+            db_connection.commit()
+            db_connection.close()
+
+    except Exception as error:
+        print(f"ERROR: While updating interview status: {error}")
+
+    return {
+        "source_breakdown": dict(source_breakdown),
+        "geographical_sourcing": dict(geographical_sourcing),
+        "cost_per_source": dict(cost_per_source),
+    }
+
+
+def get_screening_interview_analytics_from_db():
+    """Getting screening analytics"""
+
+    db_connection = connect_db_env()
+    try:
+        with db_connection.cursor() as cursor:
+            # Query for screening progress (candidates passed screening)
+            cursor.execute(
+                """
+                SELECT COUNT(*) 
+                FROM visualization_screening_results
+                WHERE pass = TRUE
+            """
+            )
+            passed_screening = cursor.fetchone()[0]
+
+            # Query for interview conversion rate (candidates who passed interview / total interviewed)
+            cursor.execute(
+                """
+                SELECT COUNT(*) 
+                FROM visualization_interviews
+                WHERE result = 'pass'
+            """
+            )
+            passed_interviews = cursor.fetchone()[0]
+
+            cursor.execute("SELECT COUNT(*) FROM visualization_interviews")
+            total_interviews = cursor.fetchone()[0]
+
+            interview_conversion_rate = (
+                (passed_interviews / total_interviews) * 100
+                if total_interviews > 0
+                else 0
+            )
+
+            db_connection.commit()
+            db_connection.close()
+
+    except Exception as error:
+        print(f"ERROR: While updating interview status: {error}")
+
+    return {
+        "passed_screening": passed_screening,
+        "interview_conversion_rate": interview_conversion_rate,
+    }
+
+
+def get_offer_hiring_analytics_from_db():
+    """Getting offere analytics"""
+
+    db_connection = connect_db_env()
+    try:
+        with db_connection.cursor() as cursor:
+            # Query for offer to hire ratio (offers accepted / total offers)
+            cursor.execute(
+                "SELECT COUNT(*) FROM visualization_offers WHERE accepted = TRUE"
+            )
+            accepted_offers = cursor.fetchone()[0]
+
+            cursor.execute("SELECT COUNT(*) FROM visualization_offers")
+            total_offers = cursor.fetchone()[0]
+
+            offer_to_hire_ratio = (
+                (accepted_offers / total_offers) * 100 if total_offers > 0 else 0
+            )
+
+            # Query for candidate drop-off rate (candidates who applied but did not get hired)
+            cursor.execute(
+                """
+                SELECT 
+                    COUNT(*) 
+                FROM visualization_applications 
+                WHERE application_status IN ('rejected', 'withdrawn')
+            """
+            )
+            dropped_candidates = cursor.fetchone()[0]
+
+            cursor.execute("SELECT COUNT(*) FROM visualization_applications")
+            total_candidates = cursor.fetchone()[0]
+
+            drop_off_rate = (
+                (dropped_candidates / total_candidates) * 100
+                if total_candidates > 0
+                else 0
+            )
+
+            db_connection.commit()
+            db_connection.close()
+
+    except Exception as error:
+        print(f"ERROR: While updating interview status: {error}")
+
+    return {
+        "offer_to_hire_ratio": offer_to_hire_ratio,
+        "candidate_drop_off_rate": drop_off_rate,
+    }
+
+
+def get_diversity_metrics_from_db():
+    """Getting Diversity Metrics"""
+
+    db_connection = connect_db_env()
+    try:
+        with db_connection.cursor() as cursor:
+            # Query for gender diversity
+            cursor.execute(
+                """
+                SELECT gender, COUNT(*)
+                FROM visualization_candidates
+                GROUP BY gender
+            """
+            )
+            gender_diversity = cursor.fetchall()
+
+            # Query for ethnicity diversity
+            cursor.execute(
+                """
+                SELECT ethnicity, COUNT(*)
+                FROM visualization_candidates
+                GROUP BY ethnicity
+            """
+            )
+            ethnicity_diversity = cursor.fetchall()
+
+            db_connection.commit()
+            db_connection.close()
+
+    except Exception as error:
+        print(f"ERROR: While updating interview status: {error}")
+
+    return {
+        "gender_diversity": dict(gender_diversity),
+        "ethnicity_diversity": dict(ethnicity_diversity),
+    }
+
+
+def get_candidate_experience_from_db():
+    """Candidates Experience"""
+
+    db_connection = connect_db_env()
+    try:
+        with db_connection.cursor() as cursor:
+            # Query for average candidate NPS (assuming a table candidate_feedback with NPS scores)
+            cursor.execute(
+                """
+                SELECT AVG(nps_score)
+                FROM visualization_candidate_feedback
+            """
+            )
+            average_nps = cursor.fetchone()[0]
+
+            # Query for the average time candidates spend in the hiring process (from application to offer/rejection)
+            cursor.execute(
+                """
+                SELECT AVG(DATE_PART('day', last_updated - date_applied)) 
+                FROM visualization_applications
+            """
+            )
+            average_time_in_process = cursor.fetchone()[0]
+
+            db_connection.commit()
+            db_connection.close()
+
+    except Exception as error:
+        print(f"ERROR: While updating interview status: {error}")
+
+    return {
+        "average_nps": average_nps,
+        "average_time_in_process": average_time_in_process,
+    }
+
+
+def get_recruitment_efficiency_from_db():
+    """Recruitment Efficiency"""
+
+    db_connection = connect_db_env()
+    try:
+        with db_connection.cursor() as cursor:
+            # Query for recruiter performance (applications handled by each recruiter)
+            cursor.execute(
+                """
+                SELECT recruiter_name, COUNT(*) 
+                FROM visualization_applications applications
+                JOIN visualization_recruiters recruiters ON applications.recruiter_id = recruiters.recruiter_id
+                GROUP BY recruiter_name
+            """
+            )
+            recruiter_performance = cursor.fetchall()
+
+            # Query for task completion rate (assuming a tasks table)
+            cursor.execute(
+                """
+                SELECT recruiter_name, COUNT(*) FILTER (WHERE status = 'completed')::float / COUNT(*) * 100 AS completion_rate
+                FROM visualization_tasks
+                GROUP BY recruiter_name
+            """
+            )
+            task_completion_rate = cursor.fetchall()
+
+            db_connection.commit()
+            db_connection.close()
+
+    except Exception as error:
+        print(f"ERROR: While updating interview status: {error}")
+
+    return {
+        "recruiter_performance": dict(recruiter_performance),
+        "task_completion_rate": dict(task_completion_rate),
+    }
+
+
+def get_compliance_metrics_from_db():
+    """Get the compliance metrics"""
+
+    db_connection = connect_db_env()
+    try:
+        with db_connection.cursor() as cursor:
+            # Query for Equal Employment Opportunity (EEO) compliance (e.g., distribution by gender or ethnicity)
+            cursor.execute(
+                """
+                SELECT gender, COUNT(*)
+                FROM visualization_candidates
+                GROUP BY gender
+            """
+            )
+            gender_distribution = cursor.fetchall()
+
+            cursor.execute(
+                """
+                SELECT ethnicity, COUNT(*)
+                FROM visualization_candidates
+                GROUP BY ethnicity
+            """
+            )
+            ethnicity_distribution = cursor.fetchall()
+
+            # Query for GDPR compliance (assuming a column tracking GDPR consent in candidates table)
+            cursor.execute(
+                """
+                SELECT COUNT(*) 
+                FROM visualization_candidates
+                WHERE gdpr_consent = TRUE
+            """
+            )
+            gdpr_compliant_candidates = cursor.fetchone()[0]
+
+            cursor.execute(
+                """
+                SELECT COUNT(*)
+                FROM visualization_candidates
+            """
+            )
+            total_candidates = cursor.fetchone()[0]
+
+            gdpr_compliance_rate = (
+                (gdpr_compliant_candidates / total_candidates) * 100
+                if total_candidates > 0
+                else 0
+            )
+
+            db_connection.commit()
+            db_connection.close()
+
+    except Exception as error:
+        print(f"ERROR: While updating interview status: {error}")
+
+    return {
+        "gender_distribution": dict(gender_distribution),
+        "ethnicity_distribution": dict(ethnicity_distribution),
+        "gdpr_compliance_rate": gdpr_compliance_rate,
+    }
 
 
 if __name__ == "__main__":
