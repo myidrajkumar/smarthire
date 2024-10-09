@@ -1,5 +1,6 @@
 """Serive to handle preliminary"""
 
+import os
 from typing import List
 
 from langchain_core.output_parsers import PydanticOutputParser
@@ -169,12 +170,13 @@ def generate_credentials_and_send_email(candidate_list, jd_id, bu_id):
         save_candidate_credentials(candidate_id, username, password)
 
         candidate_result = get_candidate_from_db(candidate_id)
+        host_url = os.getenv("HOST_URL", "http://127.0.0.1:8000")
 
         candidate = CandidateEmail(
             name=candidate_result.get("name"),
             username=username,
             password=password,
-            exam_link=f"http://127.0.0.1:8000/triggerexam?jd_id={jd_id}&bu_id={bu_id}&candidate_id={candidate_id}",
+            exam_link=f"{host_url}/triggerexam?jd_id={jd_id}&bu_id={bu_id}&candidate_id={candidate_id}",
             email=candidate_result.get("email"),
         )
         send_exam_email(candidate)
