@@ -631,7 +631,7 @@ def get_screening_interview_analytics_from_db():
             # Query for screening progress (candidates passed screening)
             cursor.execute(
                 """
-                SELECT COUNT(*) 
+                SELECT COUNT(*)
                 FROM visualization_screening_results
                 WHERE pass = TRUE
             """
@@ -776,11 +776,11 @@ def get_candidate_experience_from_db():
             # Query for the average time candidates spend in the hiring process (from application to offer/rejection)
             cursor.execute(
                 """
-                SELECT AVG(DATE_PART('day', last_updated - date_applied)) 
+                SELECT AVG(last_updated - date_applied) 
                 FROM visualization_applications
             """
             )
-            average_time_in_process = cursor.fetchone()[0]
+            average_time_in_process = int(cursor.fetchone()[0])
 
             db_connection.commit()
             db_connection.close()
@@ -814,9 +814,11 @@ def get_recruitment_efficiency_from_db():
             # Query for task completion rate (assuming a tasks table)
             cursor.execute(
                 """
-                SELECT recruiter_name, COUNT(*) FILTER (WHERE status = 'completed')::float / COUNT(*) * 100 AS completion_rate
-                FROM visualization_tasks
-                GROUP BY recruiter_name
+            SELECT r.recruiter_name, 
+                   COUNT(*) FILTER (WHERE t.status = 'completed')::float / COUNT(*) * 100 AS completion_rate
+            FROM visualization_recruiters r
+            LEFT JOIN visualization_tasks t ON r.recruiter_id = t.recruiter_id
+            GROUP BY r.recruiter_name
             """
             )
             task_completion_rate = cursor.fetchall()
