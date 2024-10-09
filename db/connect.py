@@ -15,7 +15,7 @@ def connect_db(db_config):
         with psycopg2.connect(**db_config) as conn:
             print("Connected to the PostgreSQL server.")
             return conn
-    except (psycopg2.DatabaseError, Exception) as error:
+    except Exception as error:
         print(f"ERROR: While establishing database connection: {error}")
         raise error
 
@@ -32,7 +32,7 @@ def connect_db_env():
         ) as conn:
             print("Connected to the PostgreSQL server.")
             return conn
-    except (psycopg2.DatabaseError, Exception) as error:
+    except Exception as error:
         print(f"ERROR: While establishing database connection: {error}")
         raise error
 
@@ -119,80 +119,80 @@ def get_jd_from_db(jd_id: int, bu_id: int):
 
 
 # Query Data
-def query_data(query):
-    """Querying via Pandas"""
-    db_connection = connect_db_env()
-    return pd.read_sql(query, db_connection)
+# def query_data(query):
+#     """Querying via Pandas"""
+#     db_connection = connect_db_env()
+#     return pd.read_sql(query, db_connection)
 
 
-def get_total_applications_count():
-    """Getting applications count"""
+# def get_total_applications_count():
+#     """Getting applications count"""
 
-    total_applications_query = """
-    SELECT COUNT(application_id) AS total_applications
-    FROM applications;
-    """
+#     total_applications_query = """
+#     SELECT COUNT(application_id) AS total_applications
+#     FROM applications;
+#     """
 
-    return query_data(total_applications_query).iloc[0]["total_applications"]
-
-
-def get_screening_efficiency():
-    """Getting screening efficiency"""
-
-    ai_screening_efficiency_query = """
-        SELECT COUNT(*) * 100.0 / (SELECT COUNT(*) FROM applications) AS ai_efficiency
-        FROM applications WHERE screening_score > 70;
-    """
-    return query_data(ai_screening_efficiency_query).iloc[0]["ai_efficiency"]
+#     return query_data(total_applications_query).iloc[0]["total_applications"]
 
 
-def get_candidates_pipeline():
-    """Getting candidates pipeline"""
+# def get_screening_efficiency():
+#     """Getting screening efficiency"""
 
-    pipeline_query = """
-        SELECT stage, COUNT(*) AS candidates
-        FROM applications
-        GROUP BY stage;
-    """
-    return query_data(pipeline_query)
-
-
-def get_time_to_hire():
-    """Getting time to hire"""
-
-    time_to_hire_query = """
-        SELECT job_id, AVG(DATE_PART('day', date_updated - date_applied)) AS avg_time_to_hire
-        FROM applications
-        WHERE status = 'Hired'
-        GROUP BY job_id;
-    """
-    return query_data(time_to_hire_query)
+#     ai_screening_efficiency_query = """
+#         SELECT COUNT(*) * 100.0 / (SELECT COUNT(*) FROM applications) AS ai_efficiency
+#         FROM applications WHERE screening_score > 70;
+#     """
+#     return query_data(ai_screening_efficiency_query).iloc[0]["ai_efficiency"]
 
 
-def get_max_time_to_hire():
-    """Getting maximum time to hire"""
+# def get_candidates_pipeline():
+#     """Getting candidates pipeline"""
 
-    max_time_to_hire_query = """
-       SELECT MAX(avg_time_to_hire) AS max_time
-       FROM (
-           SELECT job_id, AVG(DATE_PART('day', date_updated - date_applied)) AS avg_time_to_hire
-           FROM applications
-           WHERE status = 'Hired'
-           GROUP BY job_id
-       ) AS subquery;
-    """
-    return query_data(max_time_to_hire_query)
+#     pipeline_query = """
+#         SELECT stage, COUNT(*) AS candidates
+#         FROM applications
+#         GROUP BY stage;
+#     """
+#     return query_data(pipeline_query)
 
 
-def get_entire_job_openings_count():
-    """Getting entire job openings count"""
+# def get_time_to_hire():
+#     """Getting time to hire"""
 
-    total_jobopenings_query = """
-    SELECT COUNT(job_id) AS total_openings
-    FROM job_openings;
-    """
+#     time_to_hire_query = """
+#         SELECT job_id, AVG(DATE_PART('day', date_updated - date_applied)) AS avg_time_to_hire
+#         FROM applications
+#         WHERE status = 'Hired'
+#         GROUP BY job_id;
+#     """
+#     return query_data(time_to_hire_query)
 
-    return query_data(total_jobopenings_query).iloc[0]["total_openings"]
+
+# def get_max_time_to_hire():
+#     """Getting maximum time to hire"""
+
+#     max_time_to_hire_query = """
+#        SELECT MAX(avg_time_to_hire) AS max_time
+#        FROM (
+#            SELECT job_id, AVG(DATE_PART('day', date_updated - date_applied)) AS avg_time_to_hire
+#            FROM applications
+#            WHERE status = 'Hired'
+#            GROUP BY job_id
+#        ) AS subquery;
+#     """
+#     return query_data(max_time_to_hire_query)
+
+
+# def get_entire_job_openings_count():
+#     """Getting entire job openings count"""
+
+#     total_jobopenings_query = """
+#     SELECT COUNT(job_id) AS total_openings
+#     FROM job_openings;
+#     """
+
+#     return query_data(total_jobopenings_query).iloc[0]["total_openings"]
 
 
 def save_candidate_details(jd_id, bu_id, candidate_details_list):
@@ -258,10 +258,10 @@ def save_all_candidates_scores_with_status(candidate_results, status):
     db_connection = connect_db_env()
     try:
         with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
-            sql = """UPDATE candidates SET fit_score = %s, status = %s where id = %s"""
+            sql = """UPDATE candidates SET fit_score = %s, status = %s, status_updated_date = %s where id = %s"""
 
             data = [
-                (candidate.score, status, candidate.id)
+                (candidate.score, status, datetime.now(), candidate.id)
                 for candidate in candidate_results
             ]
             cursor.executemany(sql, data)
@@ -278,9 +278,9 @@ def save_candidate_score_with_status(candidate_id, score, status):
     db_connection = connect_db_env()
     try:
         with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
-            sql = """UPDATE candidates SET fit_score = %s , status = %s where id = %s"""
+            sql = """UPDATE candidates SET fit_score = %s , status = %s, status_updated_date = %s where id = %s"""
 
-            cursor.execute(sql, (score, status, candidate_id))
+            cursor.execute(sql, (score, status, datetime.now(), candidate_id))
             db_connection.commit()
             db_connection.close()
 
@@ -294,10 +294,10 @@ def update_candidate_interview_status(jd_id, bu_id, candidate_status):
     db_connection = connect_db_env()
     try:
         with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
-            sql = """UPDATE candidates SET status = %s where id = %s and bu_id = %s and jd_id = %s"""
+            sql = """UPDATE candidates SET status = %s, status_updated_date = %s where id = %s and bu_id = %s and jd_id = %s"""
 
             data = [
-                (candidate.interview_status, candidate.id, bu_id, jd_id)
+                (candidate.interview_status, datetime.now(), candidate.id, bu_id, jd_id)
                 for candidate in candidate_status
             ]
             cursor.executemany(sql, data)
@@ -458,10 +458,11 @@ def update_candidate_preliminary_interview_status_db(
     db_connection = connect_db_env()
     try:
         with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
-            sql = """UPDATE candidates SET status = %s where id = %s and bu_id = %s and jd_id = %s"""
+            sql = """UPDATE candidates SET status = %s, status_updated_date = %s where id = %s and bu_id = %s and jd_id = %s"""
 
             data = [
-                (status, candidate_id, bu_id, jd_id) for candidate_id in candidate_list
+                (status, datetime.now(), candidate_id, bu_id, jd_id)
+                for candidate_id in candidate_list
             ]
             cursor.executemany(sql, data)
             db_connection.commit()
