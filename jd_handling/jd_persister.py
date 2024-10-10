@@ -180,18 +180,18 @@ def save_jd_pdf(llm_response, folder_path, bu_name):
     content.append(ListFlowable(skills, bulletType="bullet"))
     content.append(Spacer(1, 12))
     # Footer
-    content.append(Paragraph("What we offer", styles["Heading2"]))
-    msg_footers = (
-        msg_footer.get(bu_name)
-        if msg_footer.get(bu_name) is not None
-        else msg_footer.get("default")
-    )
+    # content.append(Paragraph("What we offer", styles["Heading2"]))
+    # msg_footers = (
+    #     msg_footer.get(bu_name)
+    #     if msg_footer.get(bu_name) is not None
+    #     else msg_footer.get("default")
+    # )
 
-    footers = [
-        ListItem(Paragraph(footer, styles["BodyText"]))
-        for footer in msg_footers.splitlines(".")
-    ]
-    content.append(ListFlowable(footers, bulletType="bullet"))
+    # footers = [
+    #     ListItem(Paragraph(footer, styles["BodyText"]))
+    #     for footer in msg_footers.splitlines(".")
+    # ]
+    # content.append(ListFlowable(footers, bulletType="bullet"))
 
     # Build PDF
     try:
