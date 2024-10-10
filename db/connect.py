@@ -897,5 +897,23 @@ def get_compliance_metrics_from_db():
     }
 
 
+def get_jobs_from_db():
+    """Getting Jobs"""
+
+    db_connection = connect_db_env()
+    try:
+        with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
+            cursor.execute("SELECT job_id, job_title FROM visualization_jobs")
+            jobs = cursor.fetchall()
+
+            db_connection.commit()
+            db_connection.close()
+
+    except Exception as error:
+        print(f"ERROR: While updating interview status: {error}")
+
+    return {"jobs": jobs}
+
+
 if __name__ == "__main__":
     connect_db_env()

@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Recruitment Dashboard</title>
-    <link rel="stylesheet" href="dashboardstyles.css">
+    <link rel="stylesheet" href="{{ url_for('static', path='/dashboardstyle.css')}}">
+    <link rel='icon' href="{{ url_for('static', path='/favicon.ico')}}"  type='image/x-icon'/>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 <body>
@@ -14,31 +15,36 @@
         <h2>Recruitment Dashboard</h2>
         <ul>
             <li><a href="#kpis">KPIs</a></li>
-            <li><a href="#job-analytics">Job-Specific Analytics</a></li>
+            <li><a href="#job-analytics">Job Analytics</a></li>
             <li><a href="#sourcing-analytics">Sourcing Analytics</a></li>
-            <li><a href="#screening-analytics">Screening & Interview</a></li>
+            <li><a href="#cost-per-source-analytics">Cost per Source</a></li>
+            <li><a href="#geo-sourcing-analytics">Geographical Sourcing</a></li>
+            <li><a href="#screening-analytics">Screening & Interview Analytics</a></li>
             <li><a href="#diversity-analytics">Diversity & Inclusion</a></li>
             <li><a href="#compliance-analytics">Compliance & Legal</a></li>
+            <li><a href="#efficiency-analytics">Recruitment Efficiency</a></li>
+            <li><a href="#experience-analytics">Candidate Experience</a></li>
+            <li><a href="#offer-hiring-analytics">Offer & Hiring Analytics</a></li>
         </ul>
     </div>
 
     <!-- Main Content Area -->
     <div class="main-content">
-        <!-- Top-Level KPIs -->
+        <!-- KPIs -->
         <section id="kpis" class="panel">
             <h3>Key Performance Indicators</h3>
             <div class="kpi-container">
                 <div class="kpi-card">
                     <h4>Total Open Positions</h4>
-                    <p id="open-positions">50</p>
+                    <p id="total-open-positions">Loading...</p>
                 </div>
                 <div class="kpi-card">
                     <h4>Total Candidates Sourced</h4>
-                    <p id="candidates-sourced">500</p>
+                    <p id="total-candidates-sourced">Loading...</p>
                 </div>
                 <div class="kpi-card">
                     <h4>Offer Acceptance Rate</h4>
-                    <p id="offer-acceptance-rate">85%</p>
+                    <p id="offer-acceptance-rate">Loading...</p>
                 </div>
             </div>
         </section>
@@ -46,13 +52,32 @@
         <!-- Job-Specific Analytics -->
         <section id="job-analytics" class="panel">
             <h3>Job-Specific Analytics</h3>
+        
+            <label for="job-select">Select Job:</label>
+            <select id="job-select">
+                <option value="">Select a Job</option>
+                <!-- Dynamically populated options will go here -->
+            </select>
+        
             <canvas id="pipelineChart"></canvas>
         </section>
 
-        <!-- Candidate Sourcing Analytics -->
+        <!-- Sourcing Analytics -->
         <section id="sourcing-analytics" class="panel">
             <h3>Candidate Sourcing Analytics</h3>
             <canvas id="sourceChart"></canvas>
+        </section>
+
+        <!-- Cost per Source Analytics -->
+        <section id="cost-per-source-analytics" class="panel">
+            <h3>Cost per Source</h3>
+            <canvas id="costPerSourceChart"></canvas>
+        </section>
+
+        <!-- Geographical Sourcing Analytics -->
+        <section id="geo-sourcing-analytics" class="panel">
+            <h3>Geographical Sourcing</h3>
+            <canvas id="geoSourcingChart"></canvas>
         </section>
 
         <!-- Screening & Interview Analytics -->
@@ -61,7 +86,7 @@
             <canvas id="screeningChart"></canvas>
         </section>
 
-        <!-- Diversity & Inclusion Metrics -->
+        <!-- Diversity & Inclusion -->
         <section id="diversity-analytics" class="panel">
             <h3>Diversity & Inclusion Metrics</h3>
             <canvas id="diversityChart"></canvas>
@@ -69,11 +94,78 @@
 
         <!-- Compliance & Legal -->
         <section id="compliance-analytics" class="panel">
-            <h3>Compliance & Legal</h3>
-            <p>EEO and GDPR compliance data will be shown here.</p>
+            <h3>Compliance & Legal Metrics</h3>
+            
+            <div class="metrics-container">
+                <!-- GDPR Compliance Rate -->
+                <div class="metric-card">
+                    <h4>GDPR Compliance Rate</h4>
+                    <p class="metric-value"><span id="gdpr-compliance-rate">Loading...</span></p>
+                </div>
+        
+                <!-- Gender Distribution -->
+                <div class="metric-card">
+                    <h4>Gender Distribution</h4>
+                    <p class="metric-value"><span id="gender-distribution">Loading...</span></p>
+                </div>
+        
+                <!-- Ethnicity Distribution -->
+                <div class="metric-card">
+                    <h4>Ethnicity Distribution</h4>
+                    <p class="metric-value"><span id="ethnicity-distribution">Loading...</span></p>
+                </div>
+            </div>
+        </section>
+        
+
+        <!-- Recruitment Efficiency Metrics -->
+        <section id="efficiency-analytics" class="panel">
+            <h3>Recruiter Efficiency</h3>
+            
+            <h4>Recruiter Performance (Applications Handled)</h4>
+            <canvas id="recruiterPerformanceChart"></canvas>
+        
+            <h4>Task Completion Rates</h4>
+            <div class="table-container">
+                <table id="task-completion-table">
+                    <thead>
+                        <tr>
+                            <th>Recruiter Name</th>
+                            <th>Task Completion Rate (%)</th>
+                        </tr>
+                    </thead>
+                    <tbody></tbody>
+                </table>
+            </div>
+        </section>
+        
+
+        <!-- Candidate Experience & Feedback -->
+        <section id="experience-analytics" class="panel">
+            <h3>Candidate Experience & Feedback</h3>
+        
+            <h4>Average NPS Score:</h4>
+            <p id="average-nps">Loading...</p>
+        
+            <h4>Recent Candidate Feedback</h4>
+            <div id="recent-feedback">
+                <p>Loading feedback...</p>
+            </div>
+        </section>
+        
+
+        <!-- Offer & Hiring Analytics -->
+        <section id="offer-hiring-analytics" class="panel">
+            <h3>Offer & Hiring Analytics</h3>
+
+            <h4>Offer to Hire Ratio:</h4>
+            <canvas id="offerHireRatioChart"></canvas>
+
+            <h4>Candidate Drop-Off Rate:</h4>
+            <p id="candidate-drop-off-rate">Loading...</p>
         </section>
     </div>
 
-    <script src="dashboardscript.js"></script>
+    <script src="{{ url_for('static', path='/dashboardscript.js')}}"></script>
 </body>
 </html>

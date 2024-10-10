@@ -7,6 +7,7 @@ from db.connect import (
     get_compliance_metrics_from_db,
     get_diversity_metrics_from_db,
     get_job_analytics_from_db,
+    get_jobs_from_db,
     get_kpis_from_db,
     get_offer_hiring_analytics_from_db,
     get_recruitment_efficiency_from_db,
@@ -87,4 +88,12 @@ def get_compliance_metrics():
     """Get the compliance metrics"""
 
     data = get_compliance_metrics_from_db()
+    return {"message": "Success", "data": data}
+
+
+@router.get("/api/jobs")
+def get_jobs():
+    """Getting Jobs"""
+
+    data = get_jobs_from_db()
     return {"message": "Success", "data": data}

@@ -7,7 +7,6 @@ body {
     background-color: #f4f6f9;
 }
 
-/* Sidebar Styles */
 .sidebar {
     width: 250px;
     background: linear-gradient(135deg, #3498db, #2980b9);
@@ -37,10 +36,9 @@ body {
     color: #ecf0f1;
     text-decoration: none;
     font-size: 16px;
-    padding: 10px 0;
     display: block;
+    padding: 10px;
     border-left: 3px solid transparent;
-    transition: 0.3s;
 }
 
 .sidebar ul li a:hover {
@@ -48,7 +46,6 @@ body {
     padding-left: 5px;
 }
 
-/* Main Content Styles */
 .main-content {
     flex: 1;
     padding: 20px;
@@ -113,4 +110,85 @@ canvas {
     .kpi-container {
         flex-direction: column;
     }
+}
+
+
+/* Styling for the task completion table */
+.table-container {
+    max-width: 100%;
+    overflow-x: auto;  /* Horizontal scrolling for smaller screens */
+    margin-top: 20px;
+}
+
+#task-completion-table {
+    width: 100%;
+    border-collapse: collapse;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+    font-size: 16px;
+}
+
+#task-completion-table thead {
+    background-color: #3498db;
+    color: white;
+}
+
+#task-completion-table th,
+#task-completion-table td {
+    padding: 12px 15px;
+    border: 1px solid #ddd;
+    text-align: left;
+}
+
+#task-completion-table tbody tr:nth-child(even) {
+    background-color: #f4f6f9;
+}
+
+#task-completion-table tbody tr:hover {
+    background-color: #f1f1f1;
+}
+
+#task-completion-table th {
+    text-transform: uppercase;
+    font-weight: bold;
+    letter-spacing: 0.1em;
+}
+
+#task-completion-table td {
+    color: #2c3e50;
+}
+
+
+/* Styling for Compliance & Legal Metrics */
+.metrics-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 20px;
+    margin-top: 20px;
+}
+
+.metric-card {
+    background-color: white;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.05);
+    border-radius: 10px;
+    padding: 20px;
+    flex: 1 1 calc(33.333% - 20px);
+    text-align: center;
+}
+
+.metric-card h4 {
+    font-size: 18px;
+    color: #3498db;
+    margin-bottom: 10px;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.metric-value {
+    font-size: 32px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+
+.metric-card p {
+    margin: 0;
 }
