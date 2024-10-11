@@ -74,14 +74,14 @@ def save_jd_and_retrieve(llm_response, bu_id):
         folder_path=folder_path,
         bu_name=bu_name.lower(),
     )
-    return llm_response.get("JobTitle")
+    return llm_response.job_title
 
 
 def save_jd_doc(llm_response, folder_path, bu_name):
     """Persist the JD as Document"""
     bullet_style = "List Bullet"
 
-    file_name = llm_response.get("JobTitle")
+    file_name = llm_response.job_title
 
     doc = Document()
     page_title = doc.add_heading(
@@ -100,11 +100,11 @@ def save_jd_doc(llm_response, folder_path, bu_name):
         doc.add_paragraph(introduction_line)
 
     doc.add_heading("What you will do", level=1)
-    for responsibility in llm_response.get("Responsibilities"):
+    for responsibility in llm_response.responsibilities:
         doc.add_paragraph(responsibility, bullet_style)
 
     doc.add_heading("What we are looking for", level=1)
-    for responsibility in llm_response.get("SkillsAndExperience"):
+    for responsibility in llm_response.skills_experience:
         doc.add_paragraph(responsibility, bullet_style)
 
     doc.add_heading("What we offer", level=1)
@@ -124,7 +124,7 @@ def save_jd_doc(llm_response, folder_path, bu_name):
 def save_jd_pdf(llm_response, folder_path, bu_name):
     """Persist the JD as PDF"""
 
-    file_name = llm_response.get("JobTitle")
+    file_name = llm_response.job_title
 
     # Create PDF document
     doc = SimpleDocTemplate(
@@ -166,7 +166,7 @@ def save_jd_pdf(llm_response, folder_path, bu_name):
     content.append(Paragraph("What you will do", styles["Heading2"]))
     responsibilities = [
         ListItem(Paragraph(resp, styles["BodyText"]))
-        for resp in llm_response.get("Responsibilities")
+        for resp in llm_response.responsibilities
     ]
     content.append(ListFlowable(responsibilities, bulletType="bullet"))
     # content.append(Spacer(1, 12))
@@ -175,7 +175,7 @@ def save_jd_pdf(llm_response, folder_path, bu_name):
     content.append(Paragraph("What we are looking for", styles["Heading2"]))
     skills = [
         ListItem(Paragraph(skill, styles["BodyText"]))
-        for skill in llm_response.get("SkillsAndExperience")
+        for skill in llm_response.skills_experience
     ]
     content.append(ListFlowable(skills, bulletType="bullet"))
     content.append(Spacer(1, 12))

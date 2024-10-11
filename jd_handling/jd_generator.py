@@ -1,8 +1,10 @@
 """Python JD Generator"""
 
+from typing import List
 from dotenv import load_dotenv
-from langchain_core.output_parsers import JsonOutputParser
+from langchain_core.output_parsers import PydanticOutputParser
 from langchain_core.prompts import ChatPromptTemplate
+from pydantic import BaseModel
 
 
 # from llms.googlegenai_llm import load_llm
@@ -16,6 +18,15 @@ from llms.groq_llama_llm import load_llm
 # from llms.ollama_llama import load_llm
 
 load_dotenv()
+
+
+class JobDescription(BaseModel):
+    """Job Description Model"""
+
+    job_title: str
+    description: str
+    responsibilities: List[str]
+    skills_experience: List[str]
 
 
 def get_jd_from_model_json(job_title, skills, experience):
@@ -35,7 +46,7 @@ def get_jd_from_model_json(job_title, skills, experience):
         ]
     )
 
-    parser = JsonOutputParser()
+    parser = PydanticOutputParser(pydantic_object=JobDescription)
 
     chain = prompt_template | llm | parser
     return chain.invoke(
@@ -70,12 +81,11 @@ def get_job_description_sytem_propmt_msg():
 
 
             The Json field names should be the following only
-            * JobTitle
-            * Description
-            * Responsibilities
-            * SkillsAndExperience
+            * job_title
+            * description
+            * responsibilities
+            * skills_experience
 
-            The final output should be a well-structured, one-page document ready for publication in job listings.
            """
 
 
