@@ -52,7 +52,7 @@ def profile_screen_results(jd_id, bu_id, resumes):
     parser = PydanticOutputParser(pydantic_object=CandidatesList)
 
     db_result = get_jd_from_db(jd_id, bu_id)
-    file_name = f"{db_result.get("title")}.docx"
+    file_name = f"{db_result.get('title')}.docx"
     jd_txt = save_files_temporarily_and_get_delete(file_name, db_result.get("doc"))
 
     candidate_details = get_candidate_details(resumes)
