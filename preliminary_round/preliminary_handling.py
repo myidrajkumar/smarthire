@@ -12,6 +12,7 @@ from db.connect import (
     get_candidate_from_db,
     get_interview_questions_from_db,
     get_jd_from_db,
+    remove_candidate_questions_from_db,
     save_candidate_credentials,
     save_question_answers_to_db,
     update_candidate_preliminary_interview_status_db,
@@ -196,3 +197,8 @@ def update_candidate_preliminart_interview_status(jd_id, bu_id, candidate_list):
     update_candidate_preliminary_interview_status_db(
         jd_id, bu_id, candidate_list, status
     )
+
+
+def remove_candidate_questions(candidate_id: int, jd_id: int, bu_id: int):
+    """Removing Candidate Questions"""
+    remove_candidate_questions_from_db(candidate_id, jd_id, bu_id)

@@ -240,7 +240,7 @@ def get_screened_candidates(jd_id: int, bu_id: int, status: str):
     db_connection = connect_db_env()
     try:
         with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
-            sql = f"SELECT id, name, email, phone, status, status_updated_date as last_update_date FROM candidates WHERE jd_id = {jd_id} and bu_id = {bu_id}"
+            sql = f"SELECT id, name, email, phone, status, fit_score as screen_score, prelim_score, status_updated_date as last_update_date FROM candidates WHERE jd_id = {jd_id} and bu_id = {bu_id}"
             if status:
                 sql += f" and status = '{status}'"
 
@@ -283,7 +283,7 @@ def save_candidate_score_with_status(candidate_id, score, status):
     db_connection = connect_db_env()
     try:
         with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
-            sql = """UPDATE candidates SET fit_score = %s , status = %s, status_updated_date = %s where id = %s"""
+            sql = """UPDATE candidates SET prelim_score = %s , status = %s, status_updated_date = %s where id = %s"""
 
             cursor.execute(sql, (score, status, datetime.now(), candidate_id))
             db_connection.commit()
@@ -920,6 +920,25 @@ def get_jobs_from_db():
         print(f"ERROR: While updating interview status: {error}")
 
     return {"jobs": jobs}
+
+
+def remove_candidate_questions_from_db(candidate_id: int, jd_id: int, bu_id: int):
+    """Removing Candidate Questions"""
+
+    db_connection = connect_db_env()
+    try:
+        with db_connection.cursor() as cursor:
+
+            sql = f"""DELETE FROM candidate_questions_answers WHERE
+            candidate_id = {candidate_id} AND jd_id = {jd_id} AND bu_id = {bu_id}"""
+
+            cursor.execute(sql)
+
+            db_connection.commit()
+            db_connection.close()
+
+    except Exception as error:
+        print(f"ERROR: While updating interview status: {error}")
 
 
 if __name__ == "__main__":

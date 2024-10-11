@@ -1,10 +1,7 @@
 """Questions Generation"""
 
-from datetime import datetime, timedelta, timezone
 from typing import List
-from fastapi import APIRouter, HTTPException, Request
-from fastapi.responses import HTMLResponse
-from fastapi.templating import Jinja2Templates
+from fastapi import APIRouter
 from pydantic import BaseModel
 
 from db.connect import save_candidate_score_with_status
@@ -14,13 +11,12 @@ from preliminary_round.preliminary_handling import (
     get_answers,
     get_interview_questions,
     get_jd_doc,
+    remove_candidate_questions,
     save_questions,
     update_candidate_preliminart_interview_status,
 )
 
 router = APIRouter()
-templates = Jinja2Templates(directory="templates")
-attending_candidates = {}
 
 
 class FirstRound(BaseModel):
@@ -83,10 +79,10 @@ class Submission(BaseModel):
 @router.post("/submitanswers")
 async def submit_answers(submission: Submission):
     """Evaluating answers"""
-    start_time = datetime.now(timezone.utc) - timedelta(
-        minutes=60
-    )  # Example start time for demo purposes
-    current_time = datetime.now(timezone.utc)
+    # start_time = datetime.now(timezone.utc) - timedelta(
+    #     minutes=60
+    # )  # Example start time for demo purposes
+    # current_time = datetime.now(timezone.utc)
 
     candidate_id, jd_id, bu_id = (
         submission.candidate_id,
@@ -94,14 +90,14 @@ async def submit_answers(submission: Submission):
         submission.bu_id,
     )
 
-    # Calculate time difference
-    time_difference = current_time - start_time
-    attending_candidates.pop(candidate_id)
+    # # Calculate time difference
+    # time_difference = current_time - start_time
+    # attending_candidates.pop(candidate_id)
 
-    if time_difference > timedelta(hours=1):
-        raise HTTPException(
-            status_code=400, detail="Time is up! You cannot submit after 1 hour."
-        )
+    # if time_difference > timedelta(hours=1):
+    #     raise HTTPException(
+    #         status_code=400, detail="Time is up! You cannot submit after 1 hour."
+    #     )
 
     correct_answers = get_answers(candidate_id, jd_id, bu_id)
     score = sum(
@@ -112,5 +108,7 @@ async def submit_answers(submission: Submission):
     save_candidate_score_with_status(
         candidate_id, f"{score}/{len(correct_answers)}", "Preliminary: Attended"
     )
+
+    remove_candidate_questions(candidate_id, jd_id, bu_id)
 
     return {"score": score, "out_of": len(correct_answers)}
