@@ -19,12 +19,13 @@ def send_exam_email(candidate_details):
 
     We have generated credentils. Please enter these when you are attending.<br/><br/>
 
-    Please find the exam link and credentials below.<br/><br/>
+    Please find the exam link, credentials abd duration below.<br/><br/>
 
     <strong>Exam Link:</strong> <a href={candidate_details.exam_link} target='_blank'>SmartHire</a><br/>
 
     <strong>Username:</strong> {candidate_details.username}<br/>
     <strong>Password:</strong> {candidate_details.password}<br/>
+    <strong>Duration:</strong> 60 minutes<br/>
 
     Good luck!
     """

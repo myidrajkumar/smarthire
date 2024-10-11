@@ -176,7 +176,7 @@ def generate_credentials_and_send_email(candidate_list, jd_id, bu_id):
             name=candidate_result.get("name"),
             username=username,
             password=password,
-            exam_link=f"{host_url}/triggerexam?jd_id={jd_id}&bu_id={bu_id}&candidate_id={candidate_id}",
+            exam_link=f"{host_url}/startexam/{candidate_id}/jd/{jd_id}/bu/{bu_id}",
             email=candidate_result.get("email"),
         )
         try:
