@@ -66,12 +66,15 @@ def save_doc_db(bu_id, jd_file, doc_content):
         with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
 
             sql = """INSERT INTO jobdescription(title, doc, bu_id, job_posted)
-             VALUES(%s, %s, %s, %s);"""
+             VALUES(%s, %s, %s, %s)  RETURNING id;"""
 
             cursor.execute(sql, (jd_file, doc_content, bu_id, datetime.now()))
-            db_connection.commit()
+            data = cursor.fetchone()
 
+            db_connection.commit()
             db_connection.close()
+
+            return data.get("id")
 
     except Exception as error:
         print(f"ERROR: While saving JDs in DB: {error}")
@@ -84,7 +87,9 @@ def get_jds_for_bu_db(bu_id: int):  # -> Any | None:
     try:
         with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
 
-            sql = "SELECT jd.id as jd_id, title, bu.id as bu_id, job_posted FROM jobdescription jd JOIN businessunit bu on jd.bu_id = bu.id and bu.id = %s"
+            sql = """SELECT jd.id as jd_id, title, bu.id as bu_id, job_posted
+            FROM jobdescription jd JOIN businessunit bu on jd.bu_id = bu.id and bu.id = %s
+            ORDER BY job_posted DESC"""
 
             cursor.execute(sql, (bu_id))
             results = cursor.fetchall()

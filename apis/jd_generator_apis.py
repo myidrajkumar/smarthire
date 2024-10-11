@@ -93,6 +93,7 @@ async def savejd(
     bu_id: int,
     jd_title: str,
     is_save: bool,
+    f_type: str,
 ):
     """Saving the doc to DB"""
 
@@ -104,15 +105,17 @@ async def savejd(
     bu_name = bu_details_list[0].get("name")
 
     # Read the doc from BU folder
-    file_path_to_be_read = "".join(["docs", "/", bu_name, "/", (f"{jd_title}")])
+    file_path_to_be_read = "".join(
+        ["docs", "/", bu_name, "/", (f"{jd_title}"), (f".{f_type}")]
+    )
     doc_content = get_file_content_binary(file_path_to_be_read)
     if doc_content is None:
         return {"message": "Failure"}
 
     # Save the doc to DB
-    save_doc_db(bu_id, jd_title, doc_content)
+    jd_id = save_doc_db(bu_id, jd_title, doc_content)
     background_tasks.add_task(delete_file, f"{file_path_to_be_read}")
-    return {"message": "Success"}
+    return {"message": "Success", "jd_id": jd_id}
 
 
 def delete_file(file_path: str):
