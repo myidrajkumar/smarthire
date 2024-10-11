@@ -422,14 +422,16 @@ def validate_user_credentials(username, password):
     try:
         with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
 
-            sql = """SELECT username FROM candidate_credentials
-            WHERE username = %s AND password = %s"""
+            sql = """SELECT id as candidate_id, name, email, phone, bu_id, jd_id
+            FROM candidates WHERE id = (
+                SELECT candidate_id FROM candidate_credentials 
+                WHERE username = %s AND password = %s)"""
 
             cursor.execute(sql, (username, password))
             results = cursor.fetchone()
 
             db_connection.close()
-            return results.get("username") is not None
+            return results
 
     except Exception as error:
         print(f"ERROR: While getting candidates: {error}")

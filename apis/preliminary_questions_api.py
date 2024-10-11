@@ -45,20 +45,30 @@ async def send_preliminary_questions(request: FirstRound):
     return {"message": "Success"}
 
 
-@router.post("/startexam/{candidateid}")
-async def start_exam(candidateid: int):
+# @router.post("/startexam/{candidateid}")
+# async def start_exam(candidateid: int):
+#     """Start the exam and set a 1-hour timer"""
+#     attending_candidates.update({candidateid: datetime.now(timezone.utc)})
+#     return {"message": "Exam started, you have 1 hour to complete it"}
+
+
+@router.post("/startexam/{candidateid}/jd/{jdid}/bu/{buid}")
+async def start_exam(candidateid: int, jdid: int, buid: int):
     """Start the exam and set a 1-hour timer"""
-    attending_candidates.update({candidateid: datetime.now(timezone.utc)})
-    return {"message": "Exam started, you have 1 hour to complete it"}
+    assigned_questions = get_interview_questions(jdid, buid, candidateid)
+    return {
+        "message": "Exam started, you have 1 hour to complete it",
+        "questions": assigned_questions,
+    }
 
 
-@router.get("/triggerexam", response_class=HTMLResponse)
-async def show_exam(request: Request, jd_id: int, bu_id: int, candidate_id: int):
-    """Displaying Questions"""
-    assigned_questions = get_interview_questions(jd_id, bu_id, candidate_id)
-    return templates.TemplateResponse(
-        "exam.html", {"request": request, "questions": assigned_questions}
-    )
+# @router.get("/triggerexam", response_class=HTMLResponse)
+# async def show_exam(request: Request, jd_id: int, bu_id: int, candidate_id: int):
+#     """Displaying Questions"""
+#     assigned_questions = get_interview_questions(jd_id, bu_id, candidate_id)
+#     return templates.TemplateResponse(
+#         "exam.html", {"request": request, "questions": assigned_questions}
+#     )
 
 
 class Submission(BaseModel):

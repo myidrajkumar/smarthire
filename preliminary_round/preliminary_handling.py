@@ -91,12 +91,12 @@ def get_interview_questions_sytem_propmt_msg():
     * The candidates are having the time frame of just 30 minutes only.
     * You provide the correct answer to the question also with the Option.
     * The questions complexity should be based on years of experinece needed
-    * If needed experience is 0 ~ 1 year, the complexity should be low and should contain 3 questions.
-    * If needed experience is 1 ~ 3 years, the complexity should be medium and should contain 3 questions.
-    * If needed experience is 3 ~ 5 years, the complexity should be high and should contain 3 questions.
-    * If needed experience is 5 ~ 8 years, the complexity should be more high and should contain 3 questions.
-    * If needed experience is 8 ~ 11 years, the complexity should be tough and should contain 3 questions.
-    * If needed experience is more than 11 years, the complexity should be critical and should contain 3 questions.
+    * If needed experience is 0 ~ 1 year, the complexity should be low and should contain 28 questions.
+    * If needed experience is 1 ~ 3 years, the complexity should be medium and should contain 25 questions.
+    * If needed experience is 3 ~ 5 years, the complexity should be high and should contain 22 questions.
+    * If needed experience is 5 ~ 8 years, the complexity should be more high and should contain 20 questions.
+    * If needed experience is 8 ~ 11 years, the complexity should be tough and should contain 18 questions.
+    * If needed experience is more than 11 years, the complexity should be critical and should contain 17 questions.
     * DO NOT PROVIDE the reason of why the answer is correct
 
     Each item in the list has to be in JSON format with the following fields

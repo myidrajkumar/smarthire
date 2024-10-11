@@ -5,6 +5,7 @@ import os
 from fastapi import APIRouter, Depends, HTTPException
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from jose import JWTError, jwt
+from pydantic import BaseModel
 
 from db.connect import validate_user_credentials
 
@@ -36,3 +37,22 @@ async def secure_exam(token: str = Depends(oauth2_scheme)):
         return {"message": f"Welcome {username}, to your exam!"}
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
+
+
+class CandidateUser(BaseModel):
+    """Request Parameters"""
+
+    username: str
+    password: str
+
+
+@router.post("/login")
+async def candidate_login(request: CandidateUser):
+    """Login the user"""
+
+    candidate_details = validate_user_credentials(request.username, request.password)
+
+    if not candidate_details:
+        raise HTTPException(status_code=401, detail="Incorrect credentials")
+
+    return {"message": "Success", "data": candidate_details}
