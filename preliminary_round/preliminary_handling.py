@@ -133,9 +133,8 @@ def save_questions(response, candidate_list, jd_id, bu_id):
 def get_jd_doc(jd_id, bu_id):
     """Get JD from DB"""
     db_result = get_jd_from_db(jd_id, bu_id)
-    jd_txt = save_files_temporarily_and_get_delete(
-        db_result.get("title"), db_result.get("doc")
-    )
+    file_name = f'{db_result.get("title")}.docx'
+    jd_txt = save_files_temporarily_and_get_delete(file_name, db_result.get("doc"))
 
     return jd_txt
 
@@ -179,7 +178,10 @@ def generate_credentials_and_send_email(candidate_list, jd_id, bu_id):
             exam_link=f"{host_url}/triggerexam?jd_id={jd_id}&bu_id={bu_id}&candidate_id={candidate_id}",
             email=candidate_result.get("email"),
         )
-        send_exam_email(candidate)
+        try:
+            send_exam_email(candidate)
+        except Exception as error:
+            print(f"ERROR: Email could not be sent: {error}")
 
 
 def get_answers(candidate_id, jd_id, bu_id):

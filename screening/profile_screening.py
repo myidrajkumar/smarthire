@@ -52,9 +52,8 @@ def profile_screen_results(jd_id, bu_id, resumes):
     parser = PydanticOutputParser(pydantic_object=CandidatesList)
 
     db_result = get_jd_from_db(jd_id, bu_id)
-    jd_txt = save_files_temporarily_and_get_delete(
-        db_result.get("title"), db_result.get("doc")
-    )
+    file_name = f"{db_result.get("title")}.docx"
+    jd_txt = save_files_temporarily_and_get_delete(file_name, db_result.get("doc"))
 
     candidate_details = get_candidate_details(resumes)
     candidate_details = save_candidate_details(
@@ -129,7 +128,7 @@ def get_profile_screen_system_prompt_msg():
             * email - Please keep blank if not available
             * phone - Please keep blank if not available
             * score - Provide the score out of 100
-            * details - Providing the reason for the score. Please provide as List
+            * details - Providing the reason for the score. This has to be crisp and attractive. Please provide as List
            """
 
 

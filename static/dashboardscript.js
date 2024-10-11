@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', function () {
     // Fetch KPIs
-    fetch('http://localhost:8000/analytics/kpis')
+    fetch('https://smarthire-e32r.onrender.com/analytics/kpis')
         .then(response => response.json())
         .then(data => data.data)
         .then(data => {
@@ -12,7 +12,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     // Function to fetch and populate the job options dynamically
     function fetchJobs() {
-        fetch('http://localhost:8000/api/jobs')  // Assuming this API returns a list of jobs
+        fetch('https://smarthire-e32r.onrender.com/api/jobs')  // Assuming this API returns a list of jobs
             .then(response => response.json())
             .then(data => data.data)
             .then(data => {
@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', function () {
         function fetchJobAnalytics(jobId) {
             if (!jobId) return;  // No job selected, exit the function
     
-            fetch(`http://localhost:8000/analytics/jobs/${jobId}`)
+            fetch(`https://smarthire-e32r.onrender.com/analytics/jobs/${jobId}`)
                 .then(response => response.json())
                 .then(data => data.data)
                 .then(data => {
@@ -81,7 +81,7 @@ document.addEventListener('DOMContentLoaded', function () {
         fetchJobs();
 
     // Fetch Sourcing Analytics
-    fetch('http://localhost:8000/analytics/sourcing')
+    fetch('https://smarthire-e32r.onrender.com/analytics/sourcing')
     .then(response => response.json())
     .then(data => data.data)  // Access the `data` object from the response
     .then(data => {
@@ -98,7 +98,7 @@ document.addEventListener('DOMContentLoaded', function () {
 
     
     // Fetch Screening & Interview Analytics
-    fetch('http://localhost:8000/analytics/screeninginterview')
+    fetch('https://smarthire-e32r.onrender.com/analytics/screeninginterview')
         .then(response => response.json())
         .then(data => data.data)
         .then(data => {
@@ -131,7 +131,7 @@ document.addEventListener('DOMContentLoaded', function () {
         .catch(error => console.error('Error fetching screening analytics:', error));
 
     // Fetch Diversity & Inclusion Metrics
-    fetch('http://localhost:8000/analytics/diversity')
+    fetch('https://smarthire-e32r.onrender.com/analytics/diversity')
         .then(response => response.json())
         .then(data => data.data)
         .then(data => {
@@ -160,7 +160,7 @@ document.addEventListener('DOMContentLoaded', function () {
         .catch(error => console.error('Error fetching diversity metrics:', error));
 
 // Fetch Compliance Metrics
-fetch('http://localhost:8000/analytics/compliance')
+fetch('https://smarthire-e32r.onrender.com/analytics/compliance')
     .then(response => response.json())
     .then(data => data.data)  // Access the `data` object from the response
     .then(data => {
@@ -185,7 +185,7 @@ fetch('http://localhost:8000/analytics/compliance')
 
 
     // Fetch Recruitment Efficiency (Recruiter Performance & Task Completion Rate)
-fetch('http://localhost:8000/analytics/efficiency')
+fetch('https://smarthire-e32r.onrender.com/analytics/efficiency')
 .then(response => response.json())
 .then(data => data.data)  // Access the `data` object from the response
 .then(data => {
@@ -233,7 +233,7 @@ fetch('http://localhost:8000/analytics/efficiency')
 
     // Fetch Candidate Experience & Feedback
 // Fetch Candidate Experience & Feedback
-fetch('http://localhost:8000/analytics/candidateexperience')
+fetch('https://smarthire-e32r.onrender.com/analytics/candidateexperience')
     .then(response => response.json())
     .then(data => data.data)  // Access the `data` object from the response
     .then(data => {
@@ -248,7 +248,7 @@ fetch('http://localhost:8000/analytics/candidateexperience')
 
 
     // Fetch Offer & Hiring Analytics
-    fetch('http://localhost:8000/analytics/offers')
+    fetch('https://smarthire-e32r.onrender.com/analytics/offers')
         .then(response => response.json())
         .then(data => data.data)
         .then(data => {
