@@ -56,6 +56,6 @@ async def candidate_login(request: CandidateUser):
         raise HTTPException(status_code=401, detail="Incorrect credentials")
 
     if candidate_details.get("expired"):
-        raise HTTPException(status_code=200, detail="You already attended the exam")
+        raise HTTPException(status_code=403, detail="You already attended the exam")
 
     return {"message": "Success", "data": candidate_details}
