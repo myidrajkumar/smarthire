@@ -45,8 +45,13 @@ document.addEventListener('DOMContentLoaded', function () {
     
                     const ctxPipeline = document.getElementById('pipelineChart').getContext('2d');
 
+                    let chart = Chart.getChart("pipelineChart");
+                    if (chart) {
+                        chart.destroy();
+                    }
+
                     // Update the pipeline chart with data for the selected job
-                    new Chart(ctxPipeline, {
+                    chart = new Chart(ctxPipeline, {
                         type: 'bar',
                         data: {
                             labels: pipelineLabels,
