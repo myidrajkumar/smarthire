@@ -8,6 +8,7 @@ from langchain_core.prompts import ChatPromptTemplate
 from pydantic import BaseModel
 
 from db.connect import (
+    disable_user_login_from_db,
     get_answers_from_db,
     get_candidate_from_db,
     get_interview_questions_from_db,
@@ -106,7 +107,7 @@ def get_interview_questions_sytem_propmt_msg():
     * instructions
     * candidates_set - This should be list of candidates. Please refer below how candidate format should be
 
-    Each candidate should contain list of questions and SHOULD NOT CONTAIN any other fields.
+    Each candidate should contain list of questions and SHOULD BE in JSON format and DO NOT INCLUDE ANY OTHER Fileds 
     * questions_set - This should be list of questions. Please refer below how question format should be
 
     Each question in questions list should be in JSON format with the following fields
@@ -202,3 +203,8 @@ def update_candidate_preliminart_interview_status(jd_id, bu_id, candidate_list):
 def remove_candidate_questions(candidate_id: int, jd_id: int, bu_id: int):
     """Removing Candidate Questions"""
     remove_candidate_questions_from_db(candidate_id, jd_id, bu_id)
+
+
+def disable_user_login(candidate_id):
+    """Disabling user login"""
+    disable_user_login_from_db(candidate_id)

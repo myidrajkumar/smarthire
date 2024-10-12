@@ -422,10 +422,9 @@ def validate_user_credentials(username, password):
     try:
         with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
 
-            sql = """SELECT id as candidate_id, name, email, phone, bu_id, jd_id
-            FROM candidates WHERE id = (
-                SELECT candidate_id FROM candidate_credentials 
-                WHERE username = %s AND password = %s)"""
+            sql = """SELECT id as candidate_id, name, email, phone, bu_id, jd_id, expired
+            FROM candidate_credentials cc JOIN candidates c ON cc.candidate_id = c.id
+            WHERE cc.username = %s AND cc.password = %s"""
 
             cursor.execute(sql, (username, password))
             results = cursor.fetchone()
@@ -931,6 +930,25 @@ def remove_candidate_questions_from_db(candidate_id: int, jd_id: int, bu_id: int
 
             sql = f"""DELETE FROM candidate_questions_answers WHERE
             candidate_id = {candidate_id} AND jd_id = {jd_id} AND bu_id = {bu_id}"""
+
+            cursor.execute(sql)
+
+            db_connection.commit()
+            db_connection.close()
+
+    except Exception as error:
+        print(f"ERROR: While updating interview status: {error}")
+
+
+def disable_user_login_from_db(candidate_id):
+    """Disable user login"""
+
+    db_connection = connect_db_env()
+    try:
+        with db_connection.cursor() as cursor:
+
+            sql = f"""UPDATE candidate_credentials SET expired = true
+            WHERE candidate_id = {candidate_id}"""
 
             cursor.execute(sql)
 

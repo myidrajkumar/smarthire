@@ -6,12 +6,12 @@ from pydantic import BaseModel
 
 from db.connect import save_candidate_score_with_status
 from preliminary_round.preliminary_handling import (
+    disable_user_login,
     generate_credentials_and_send_email,
     generate_interview_questions,
     get_answers,
     get_interview_questions,
     get_jd_doc,
-    remove_candidate_questions,
     save_questions,
     update_candidate_preliminart_interview_status,
 )
@@ -109,6 +109,10 @@ async def submit_answers(submission: Submission):
         candidate_id, f"{score}/{len(correct_answers)}", "Preliminary: Attended"
     )
 
-    remove_candidate_questions(candidate_id, jd_id, bu_id)
+    # Since user attended th exam, disable the login
+    disable_user_login(candidate_id)
+
+    # Optionally, remove the candidate's questions from the database
+    # remove_candidate_questions(candidate_id, jd_id, bu_id)
 
     return {"score": score, "out_of": len(correct_answers)}
