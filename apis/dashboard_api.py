@@ -46,12 +46,12 @@ def get_sourcing_analytics():
     data = get_sourcing_analytics_from_db()
 
     message = """Sourcing data: {data}. This contains 'source_breakdown', 'geographical_sourcing'
-    and 'cost_per_source'. Please provide a brief summary of 'source_breakdown' and 'cost_per_source'.
+    and 'cost_per_source'. Please provide a brief summary of 'source_breakdown'and 'cost_per_source'.
     DO NOT CONSIDER 'geographical_sourcing' data at all.
     Please just provide summary in just 2 lines. Please provide in JSON format with the following fields
 
-    * source_breakdown_summary - 2 line summary
-    * cost_per_source_summary - 2 line summary
+    * source_breakdown_summary - 2 lines paragraph summary. This content should be in MD or markdown format
+    * cost_per_source_summary - 2 lines paragraph summary. This content should be in MD or markdown format
     """
 
     parser = PydanticOutputParser(pydantic_object=SourcingSummary)
@@ -106,7 +106,8 @@ def get_compliance_metrics():
     data = get_compliance_metrics_from_db()
 
     message = """Compliance data: {data}. This contains 'gender_distribution', 'ethnicity_distribution'
-    and 'gdpr_compliance_rate'. Please provide insights and suggestions with 4 lines."""
+    and 'gdpr_compliance_rate'. Please provide insights and suggestions with 4 lines of pargraph summary.
+    This content should be in MD or Markdown format"""
 
     parser = StrOutputParser()
 

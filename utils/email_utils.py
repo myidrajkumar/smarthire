@@ -26,8 +26,12 @@ def send_exam_email(candidate_details):
     <strong>Username:</strong> {candidate_details.username}<br/>
     <strong>Password:</strong> {candidate_details.password}<br/>
     <strong>Duration:</strong> 60 minutes<br/>
+    <strong>Job Title:</strong> {candidate_details.job_title} <br/><br/>
 
-    Good luck!
+    Wishing you Good luck!<br/><br/><br/><br/>
+
+    Regards,<br/>
+    SmartHire HR Team
     """
     mail_message = MIMEMultipart("alternative")
     mail_message["Subject"] = "Your Exam Invitation"

@@ -136,9 +136,10 @@ def get_jd_doc(jd_id, bu_id):
     """Get JD from DB"""
     db_result = get_jd_from_db(jd_id, bu_id)
     file_name = f'{db_result.get("title")}.docx'
+    jd_title = db_result.get("title")
     jd_txt = save_files_temporarily_and_get_delete(file_name, db_result.get("doc"))
 
-    return jd_txt
+    return jd_title, jd_txt
 
 
 def get_interview_questions(jd_id, bu_id, candidate_id):
@@ -162,9 +163,10 @@ class CandidateEmail(BaseModel):
     password: str
     exam_link: str
     email: str
+    job_title: str
 
 
-def generate_credentials_and_send_email(candidate_list, jd_id, bu_id):
+def generate_credentials_and_send_email(candidate_list, jd_id, bu_id, jd_title):
     """Generate credentials and send email"""
     for candidate_id in candidate_list:
         username, password = generate_credentials()
@@ -179,6 +181,7 @@ def generate_credentials_and_send_email(candidate_list, jd_id, bu_id):
             password=password,
             exam_link=f"{host_url}/startexam/{candidate_id}/jd/{jd_id}/bu/{bu_id}",
             email=candidate_result.get("email"),
+            job_title=jd_title,
         )
         try:
             send_exam_email(candidate)
