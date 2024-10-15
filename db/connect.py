@@ -242,7 +242,9 @@ def get_screened_candidates(jd_id: int, bu_id: int, status: str):
         with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
             sql = f"SELECT id, name, email, phone, status, fit_score as screen_score, prelim_score, status_updated_date as last_update_date FROM candidates WHERE jd_id = {jd_id} and bu_id = {bu_id}"
             if status:
-                sql += f" and status = '{status}'"
+                status_list = [s.strip() for s in status.split(",")]
+                or_conditions = " OR ".join([f"status = '{s}'" for s in status_list])
+                sql += f" and ({or_conditions})"
 
             cursor.execute(sql)
             results = cursor.fetchall()
@@ -422,9 +424,12 @@ def validate_user_credentials(username, password):
     try:
         with db_connection.cursor(cursor_factory=RealDictCursor) as cursor:
 
-            sql = """SELECT id as candidate_id, name, email, phone, bu_id, jd_id, expired
-            FROM candidate_credentials cc JOIN candidates c ON cc.candidate_id = c.id
-            WHERE cc.username = %s AND cc.password = %s"""
+            sql = """SELECT c.id AS candidate_id, c.name, c.email, c.phone,
+                c.bu_id, c.jd_id, cc.expired, jd.title AS job_title
+                FROM candidate_credentials cc 
+                JOIN candidates c ON cc.candidate_id = c.id
+                JOIN jobdescription jd ON c.jd_id = jd.id
+                WHERE cc.username = %s AND cc.password = %s"""
 
             cursor.execute(sql, (username, password))
             results = cursor.fetchone()

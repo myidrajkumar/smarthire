@@ -36,7 +36,7 @@ class CandidateResult(BaseModel):
     name: str
     phone: str
     score: int
-    details: list[str]
+    details: str
 
 
 class CandidatesList(RootModel):
@@ -128,7 +128,12 @@ def get_profile_screen_system_prompt_msg():
             * email - Please keep blank if not available
             * phone - Please keep blank if not available
             * score - Provide the score out of 100
-            * details - Providing the reason for the score. This has to be crisp and attractive. Please provide as List
+            * details - Providing the reason for the score. This has to be in the following guidelines
+      
+              - The reason should be crispy and on the point.
+              - The reason should contain descriptive heading and the concise reason
+              - The reason should be in bullet points
+              - The reason should be in md or MD or markdown format
            """
 
 
