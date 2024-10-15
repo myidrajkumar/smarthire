@@ -2,21 +2,37 @@
 
 import pathlib
 from docx import Document
-from docx.enum.text import WD_ALIGN_PARAGRAPH
+from docx.enum.text import WD_PARAGRAPH_ALIGNMENT
+from docx.shared import Pt, RGBColor
 from reportlab.lib.pagesizes import letter
-from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
+from reportlab.pdfbase.ttfonts import TTFont
+from reportlab.pdfbase import pdfmetrics
+from reportlab.lib.styles import ParagraphStyle
 from reportlab.platypus import (
     SimpleDocTemplate,
     Paragraph,
-    Spacer,
     ListFlowable,
     ListItem,
+    Image,
+    Spacer,
 )
-from reportlab.lib.enums import TA_CENTER
+from reportlab.lib.enums import TA_LEFT
+from reportlab.lib import colors
+import os
 
 from db.connect import get_business_units
 
+# Get the current directory path
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Path to the fonts folder
+fonts_dir = os.path.join(current_dir, "..", "fonts")
+
 DOCS_FOLDER = "docs"
+
+# Path to the static folder
+static_dir = os.path.join(current_dir, "..", "static")
+
 
 bu_intro = {
     "digitalx": "The digital X Business Unit works with clients to innovate, deliver, and run solutions that drive growth and bring new business models across industries to the market.\n\
@@ -44,7 +60,7 @@ that helps companies improve their operational efficiency\
 and decision-making capabilities.",
 }
 
-msg_footer = {
+bu_offer = {
     "default": "A place where individuals are equally valued and where diversity and cultural differences are cherished.\n\
 A global team of highly respected SAP and industry experts where you can make a difference.\n\
 Competitive salaries and a broad range of benefits.",
@@ -54,6 +70,27 @@ Highly competitive compensation packages including incentive payment and private
 International exposure, internal and external training to help you further develop your talents.\n\
 A team in which the core values are collaboration thought leadership and entrepreneurship.",
 }
+
+company_info = "msg global solutions is a systems integrator, software development partner, \
+and managed services provider focused on SAP solutions for multiple industries. \
+Our services include strategies for accounting, finance, regulatory reporting, \
+performance management, sustainability, customer experience, and IoT. \
+Operating from offices across the globe and growing, we help clients achieve operational efficiency \
+and improve decision-making capabilities. \
+With deep industry knowledge, technical expertise, and a diverse range of perspectives, \
+our people spark change and create innovative solutions to complex operational issues.\
+Our goal is to create long-lasting client relationships built on trust and dependability.\n\n\
+msg global solutions is part of msg, an independent, international group of companies with more than 10,000 \
+employees around the world."
+
+footer_text = "msg global is an Equal Opportunity Employer. Equal Employment Opportunity has been, \
+and will continue to be, a fundamental principle for us. At the heart of this policy is our \
+commitment that we make job related decisions based on the job related criteria. More specifically, \
+employment is based on personal capabilities and qualifications without discrimination based on race, \
+color, religion, sex, age, national origin, disability, sexual orientation, marital status, ancestry, \
+veteran status or any other protected characteristic as established by law. These principles are to be \
+applied to policies and procedures relating to recruitment and hiring, compensation, benefits, termination \
+and all other terms and conditions of employment."
 
 
 def save_jd_and_retrieve(llm_response, bu_id):
@@ -79,43 +116,134 @@ def save_jd_and_retrieve(llm_response, bu_id):
 
 def save_jd_doc(llm_response, folder_path, bu_name):
     """Persist the JD as Document"""
-    bullet_style = "List Bullet"
 
     file_name = llm_response.job_title
 
     doc = Document()
-    page_title = doc.add_heading(
-        file_name,
-        level=0,
-    )
-    page_title.alignment = WD_ALIGN_PARAGRAPH.CENTER
 
-    doc.add_heading("What we do", level=1)
+    # Get the page width from the document's section
+    section = doc.sections[0]
+    page_width = section.page_width
+    left_margin = section.left_margin
+    right_margin = section.right_margin
+
+    # Calculate the available width for the image (page width minus margins)
+    available_width = page_width - left_margin - right_margin
+
+    # Add image and scale it to fit the page width
+
+    doc.add_picture(
+        os.path.join(static_dir, "jd-template-header.png"), width=available_width
+    )
+
+    add_styled_paragraph(
+        p=doc.add_paragraph(),
+        text="Job Position ID: 1",
+        font_size=10,
+        bold=True,
+        space_before=20,
+    )
+    add_styled_paragraph(
+        p=doc.add_paragraph(),
+        text=file_name,
+        font_size=16,
+        bold=True,
+        color=RGBColor(139, 0, 0),  # darkred
+        space_before=30,
+        space_after=20,
+    )
+
+    # Add label-value pairs
+    add_label_value(doc, "Location:", "Bengaluru, India")
+    add_label_value(doc, "Employment Type:", "Full Time")
+    add_label_value(doc, "Work Model:", "Hybrid")
+
+    add_styled_paragraph(
+        p=doc.add_paragraph(),
+        text="Who we are",
+        font_size=16,
+        color=RGBColor(139, 0, 0),  # darkred
+        space_before=30,
+        space_after=20,
+    )
+    for company_info_line in company_info.splitlines():
+        add_styled_paragraph(
+            p=doc.add_paragraph(),
+            text=company_info_line,
+        )
+
+    add_styled_paragraph(
+        p=doc.add_paragraph(),
+        text="What we do",
+        font_size=16,
+        color=RGBColor(139, 0, 0),  # darkred
+        space_before=30,
+        space_after=20,
+    )
     bu_introductions = (
         bu_intro.get(bu_name)
         if bu_intro.get(bu_name) is not None
         else bu_intro.get("default")
     )
     for introduction_line in bu_introductions.splitlines():
-        doc.add_paragraph(introduction_line)
+        add_styled_paragraph(p=doc.add_paragraph(), text=introduction_line)
 
-    doc.add_heading("What you will do", level=1)
+    add_styled_paragraph(
+        p=doc.add_paragraph(),
+        text="What you will do",
+        font_size=16,
+        color=RGBColor(139, 0, 0),  # darkred
+        space_before=30,
+        space_after=20,
+    )
     for responsibility in llm_response.responsibilities:
-        doc.add_paragraph(responsibility, bullet_style)
+        add_styled_paragraph(p=doc.add_paragraph(), text=responsibility, bullet=True)
 
-    doc.add_heading("What we are looking for", level=1)
-    for responsibility in llm_response.skills_experience:
-        doc.add_paragraph(responsibility, bullet_style)
+    add_styled_paragraph(
+        p=doc.add_paragraph(),
+        text="What we are looking for",
+        font_size=16,
+        color=RGBColor(139, 0, 0),  # darkred
+        space_before=30,
+        space_after=20,
+    )
+    for skill in llm_response.skills_experience:
+        add_styled_paragraph(
+            p=doc.add_paragraph(),
+            text=skill,
+            bullet=True,
+        )
 
-    doc.add_heading("What we offer", level=1)
-    msg_footers = (
-        msg_footer.get(bu_name)
-        if msg_footer.get(bu_name) is not None
-        else msg_footer.get("default")
+    add_styled_paragraph(
+        p=doc.add_paragraph(),
+        text="What we offer",
+        font_size=16,
+        color=RGBColor(139, 0, 0),  # darkred
+        space_before=30,
+        space_after=20,
+    )
+    bu_offers = (
+        bu_offer.get(bu_name)
+        if bu_offer.get(bu_name) is not None
+        else bu_offer.get("default")
     )
 
-    for footer in msg_footers.splitlines():
-        doc.add_paragraph(footer, bullet_style)
+    for offer in bu_offers.splitlines():
+        add_styled_paragraph(
+            p=doc.add_paragraph(),
+            text=offer,
+            bullet=True,
+        )
+
+    doc.add_picture(
+        os.path.join(static_dir, "jd-template-footer.png"), width=available_width
+    )
+
+    add_styled_paragraph(
+        p=doc.add_paragraph(),
+        text=footer_text,
+        space_before=20,
+    )
 
     doc.save(f"{folder_path}/{file_name}.docx")
     return f"{file_name}.docx"
@@ -130,69 +258,159 @@ def save_jd_pdf(llm_response, folder_path, bu_name):
     doc = SimpleDocTemplate(
         f"{folder_path}/{file_name}.pdf",
         pagesize=letter,
-        rightMargin=72,
-        leftMargin=72,
-        topMargin=72,
-        bottomMargin=18,
+        # rightMargin=72,
+        # leftMargin=72,
+        # topMargin=72,
+        # bottomMargin=18,
     )
 
-    # Styles
-    styles = getSampleStyleSheet()
-    styles.add(ParagraphStyle(name="Justify", alignment=4))  # 4 is for justified text
-    styles.add(ParagraphStyle(name="Center", alignment=TA_CENTER))
+    # Register Arial and Arial-Bold fonts
+    pdfmetrics.registerFont(TTFont("Arial", os.path.join(fonts_dir, "arial.ttf")))
+    pdfmetrics.registerFont(
+        TTFont("Arial-Bold", os.path.join(fonts_dir, "arialbd.ttf"))
+    )
+
+    # Define specific styles
+    arial_style = ParagraphStyle(
+        name="ArialHeading",
+        fontName="Arial",
+        fontSize=16,
+        textColor=colors.darkred,
+        leading=18,
+        spaceBefore=30,
+        spaceAfter=20,
+    )
+    arial_regular_style = ParagraphStyle(
+        name="ArialRegular",
+        fontName="Arial",
+        fontSize=14,
+        textColor=colors.black,
+        leading=18,
+        spaceBefore=30,
+    )
+
+    arial_regular_style_bullet = ParagraphStyle(
+        name="ArialRegular",
+        fontName="Arial",
+        fontSize=14,
+        textColor=colors.black,
+        leading=18,
+    )
+
+    arial_bold_style = ParagraphStyle(
+        name="ArialBold",
+        fontName="Arial-Bold",
+        fontSize=16,
+        textColor=colors.darkred,
+        spaceBefore=30,
+        spaceAfter=20,
+    )
+
+    arial_bold_regular_style = ParagraphStyle(
+        name="ArialBoldRegular",
+        fontName="Arial-Bold",
+        fontSize=10,
+        textColor=colors.black,
+        spaceBefore=20,
+    )
+    # Create a style for the combined text
+    style_combined = ParagraphStyle(
+        name="CombinedStyle",
+        fontSize=10,
+        textColor=colors.black,
+        alignment=0,  # Left alignment
+        spaceAfter=1,
+    )
 
     # Content for the PDF
     content = []
 
+    # Adding the header image
+    header_img = Image(
+        os.path.join(static_dir, "jd-template-header.png"), width=500, height=200
+    )
+    header_img.hAlign = "CENTER"
+    content.append(header_img)
+
+    content.append(Paragraph("Job Position ID: 1", style=arial_bold_regular_style))
+
     # Title (centered)
-    title_style = styles["Title"]
-    title_style.alignment = TA_CENTER
+    title_style = arial_bold_style
+    title_style.alignment = TA_LEFT
     content.append(Paragraph(file_name, title_style))
-    content.append(Spacer(1, 24))
+    # Define the labels and values with inline styling
+    details = [
+        ("Location:", "Bengaluru, India", "Arial-Bold", "Arial"),
+        ("Employment Type:", "Full Time", "Arial-Bold", "Arial"),
+        ("Work Model:", "Hybrid", "Arial-Bold", "Arial"),
+    ]
+    # Append each detail to the content
+    for label, value, label_font, value_font in details:
+        # Create formatted strings with inline styles
+        formatted_label = f'<font name="{label_font}" size="10">{label}</font>'
+        formatted_value = (
+            f'<font name="{value_font}" size="10"> {value}</font>'  # Space before value
+        )
+        combined_text = f"{formatted_label}{formatted_value}"
+
+        # Append the combined text as a paragraph
+        content.append(Paragraph(combined_text, style_combined))
+
+    # Company Info
+    content.append(Paragraph("Who we are", style=arial_style))
+    for company_info_line in company_info.splitlines():
+        content.append(Paragraph(company_info_line, style=arial_regular_style))
 
     # BU introduction
-    content.append(Paragraph("What we do", styles["Heading2"]))
+    content.append(Paragraph("What we do", style=arial_style))
     bu_introductions = (
         bu_intro.get(bu_name)
         if bu_intro.get(bu_name) is not None
         else bu_intro.get("default")
     )
     for introduction in bu_introductions.splitlines():
-        content.append(Paragraph(introduction, styles["BodyText"]))
-
-    # content.append(Spacer(1, 12))
+        content.append(Paragraph(introduction, style=arial_regular_style))
 
     # Responsibilities
-    content.append(Paragraph("What you will do", styles["Heading2"]))
+    content.append(Paragraph("What you will do", style=arial_style))
     responsibilities = [
-        ListItem(Paragraph(resp, styles["BodyText"]))
+        ListItem(Paragraph(resp, style=arial_regular_style_bullet))
         for resp in llm_response.responsibilities
     ]
     content.append(ListFlowable(responsibilities, bulletType="bullet"))
-    # content.append(Spacer(1, 12))
 
     # Skills & Experience
-    content.append(Paragraph("What we are looking for", styles["Heading2"]))
+    content.append(Paragraph("What we are looking for", style=arial_style))
     skills = [
-        ListItem(Paragraph(skill, styles["BodyText"]))
+        ListItem(Paragraph(skill, style=arial_regular_style_bullet))
         for skill in llm_response.skills_experience
     ]
     content.append(ListFlowable(skills, bulletType="bullet"))
-    content.append(Spacer(1, 12))
-    # Footer
-    # content.append(Paragraph("What we offer", styles["Heading2"]))
-    # msg_footers = (
-    #     msg_footer.get(bu_name)
-    #     if msg_footer.get(bu_name) is not None
-    #     else msg_footer.get("default")
-    # )
 
-    # footers = [
-    #     ListItem(Paragraph(footer, styles["BodyText"]))
-    #     for footer in msg_footers.splitlines(".")
-    # ]
-    # content.append(ListFlowable(footers, bulletType="bullet"))
+    content.append(Paragraph("What we offer", style=arial_style))
+    bu_offers = (
+        bu_offer.get(bu_name)
+        if bu_offer.get(bu_name) is not None
+        else bu_offer.get("default")
+    )
 
+    offers = [
+        ListItem(Paragraph(offer, style=arial_regular_style_bullet))
+        for offer in bu_offers.splitlines(".")
+    ]
+    content.append(ListFlowable(offers, bulletType="bullet"))
+
+    # Adding the footer image
+    footer_img = Image(
+        os.path.join(static_dir, "jd-template-footer.png"), width=500, height=200
+    )
+    footer_img.hAlign = "CENTER"
+    content.append(footer_img)
+
+    # Add a Spacer to create space after the image
+    content.append(Spacer(1, 20))  # 20 points of vertical space
+
+    content.append(Paragraph(footer_text, style=arial_regular_style))
     # Build PDF
     try:
         doc.build(content)
@@ -203,18 +421,65 @@ def save_jd_pdf(llm_response, folder_path, bu_name):
     return f"{file_name}.pdf"
 
 
-# Helper function to wrap text within the specified width
-def wrap_text(c, text, max_width):
-    """Wrapping text"""
-    lines = []
-    words = text.split(" ")
-    current_line = ""
-    for word in words:
-        if c.stringWidth(current_line + word, "Helvetica", 12) < max_width:
-            current_line += word + " "
-        else:
-            lines.append(current_line.strip())
-            current_line = word + " "
-    if current_line:
-        lines.append(current_line.strip())
-    return lines
+def add_styled_paragraph(
+    p: Paragraph,
+    text,
+    font_name="Arial",
+    font_size=14,
+    bold=False,
+    italic=False,
+    color=RGBColor(0, 0, 0),
+    bullet=False,
+    space_before=0,
+    space_after=0,
+    line_spacing=1.5,
+    alignment=WD_PARAGRAPH_ALIGNMENT.LEFT,
+):
+    # Create a new paragraph
+
+    # Add text to the paragraph
+    run = p.add_run(text)
+
+    # Set font properties
+    run.font.name = font_name
+    run.font.size = Pt(font_size)
+    run.font.bold = bold
+    run.font.italic = italic
+
+    # Set font color
+    if color:
+        run.font.color.rgb = RGBColor(*color)
+
+    # Set paragraph alignment
+    p.alignment = alignment
+
+    # Set paragraph spacing
+    p.paragraph_format.space_before = Pt(space_before)
+    p.paragraph_format.space_after = Pt(space_after)
+
+    # Set line spacing
+    # line spacing is in points; multiply by 12 for a line height factor
+    p.paragraph_format.line_spacing = Pt(line_spacing * 12)
+
+    # Add bullet points if specified
+    if bullet:
+        p.style = "ListBullet"  # Use built-in bullet style
+
+
+def add_label_value(doc, label, value, label_font="Arial-Bold", value_font="Arial"):
+    # Create a new paragraph
+    p = doc.add_paragraph()
+
+    # Add the label with bold style
+    label_run = p.add_run(label)
+    label_run.font.name = label_font
+    label_run.font.size = Pt(10)
+    label_run.font.bold = True  # Make the label bold
+    label_run.font.color.rgb = RGBColor(0, 0, 0)
+
+    # Add the value (after a space)
+    value_run = p.add_run(f" {value}")
+    value_run.font.name = value_font
+    value_run.font.size = Pt(10)
+    value_run.font.bold = False  # Regular text for value
+    value_run.font.color.rgb = RGBColor(0, 0, 0)
