@@ -32,7 +32,7 @@ class JobDescription(BaseModel):
 def get_jd_from_model_json(job_title, skills, experience):
     """Connect and Get the response"""
     llm = load_llm()
-
+    print(job_title)
     prompt_template = ChatPromptTemplate(
         [
             (
@@ -79,12 +79,13 @@ def get_job_description_sytem_propmt_msg():
             * Use professional and inclusive language suitable for a formal job posting.
             * Except description, all other fields should be list only
 
-
-            The Json field names should be the following only
-            * job_title
-            * description
-            * responsibilities
-            * skills_experience
+            Return a response in JSON format with the following structure
+            {{
+                "job_title": "string",
+                "description": "string",
+                "responsibilities":["list of responsibilities"],
+                "skills_experience": ["list"]
+            }}
 
            """
 
