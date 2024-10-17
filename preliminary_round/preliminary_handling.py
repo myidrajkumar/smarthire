@@ -179,7 +179,7 @@ def generate_credentials_and_send_email(candidate_list, jd_id, bu_id, jd_title):
             name=candidate_result.get("name"),
             username=username,
             password=password,
-            exam_link=f"{host_url}/startexam/{candidate_id}/jd/{jd_id}/bu/{bu_id}",
+            exam_link=f"{host_url}",
             email=candidate_result.get("email"),
             job_title=jd_title,
         )
