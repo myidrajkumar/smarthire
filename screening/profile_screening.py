@@ -134,6 +134,7 @@ def get_profile_screen_system_prompt_msg():
               - The reason should contain descriptive heading and the concise reason
               - The reason should be in bullet points
               - The reason should be in md or MD or markdown format
+              - Do NOT include double quotes in between statements
            """
 
 
