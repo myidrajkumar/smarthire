@@ -395,8 +395,10 @@ def save_jd_pdf(llm_response, folder_path, bu_name):
     )
 
     offers = [
-        ListItem(Paragraph(offer, style=arial_regular_style_bullet))
-        for offer in bu_offers.splitlines(".")
+        ListItem(Paragraph("A place where individuals are equally valued and where diversity and cultural differences are cherished.", style=arial_regular_style_bullet)),
+        ListItem(Paragraph("A global team of highly respected SAP and industry experts where you can make a difference.", style=arial_regular_style_bullet)),
+        ListItem(Paragraph("Competitive salaries and a broad range of benefits.", style=arial_regular_style_bullet)),
+        # for offer in bu_offers.splitlines(".")
     ]
     content.append(ListFlowable(offers, bulletType="bullet"))
 
