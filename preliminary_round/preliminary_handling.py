@@ -18,7 +18,7 @@ from db.connect import (
     save_question_answers_to_db,
     update_candidate_preliminary_interview_status_db,
 )
-from llms.groq_llama_llm import load_llm
+from llms.groq_llama_llm_versatile import load_llm
 from utils.credential_utils import generate_credentials
 from utils.email_utils import send_exam_email
 from utils.file_utils import save_files_temporarily_and_get_delete
@@ -84,8 +84,9 @@ def get_interview_questions_sytem_propmt_msg():
     You are an AI assistant specialized in generating interview questions
     based on job description. Your goal is to provide a comprehensive and
     accurate set of questions that can be used to assess the suitability of a
-    candidates for a particular job role. From the JD, just use the 'Skills'
-    section to generate interview questions. DO NOT USE ANY OTHER SECTIONS
+    candidates for a particular job role. From the Job Description, 
+    just USE the 'What we are looking for' section and USE SKILLS ONLY to generate questions.
+    DO NOT USE ANY OTHER SECTIONS FROM JD
 
     Following are TODOs:
     * The questions should be of MCQs only
@@ -93,12 +94,12 @@ def get_interview_questions_sytem_propmt_msg():
     * The candidates are having the time frame of just 30 minutes only.
     * You provide the correct answer to the question also with the Option.
     * The questions complexity should be based on years of experinece needed
-    * If needed experience is 0 ~ 1 year, the complexity should be low and should contain 28 questions.
-    * If needed experience is 1 ~ 3 years, the complexity should be medium and should contain 25 questions.
-    * If needed experience is 3 ~ 5 years, the complexity should be high and should contain 22 questions.
-    * If needed experience is 5 ~ 8 years, the complexity should be more high and should contain 20 questions.
-    * If needed experience is 8 ~ 11 years, the complexity should be tough and should contain 18 questions.
-    * If needed experience is more than 11 years, the complexity should be critical and should contain 17 questions.
+    * If needed experience is 0 ~ 1 year, the complexity should be low and should contain ONLY 28 questions.
+    * If needed experience is 1 ~ 3 years, the complexity should be medium and should contain ONLY 25 questions.
+    * If needed experience is 3 ~ 5 years, the complexity should be high and should contain ONLY 22 questions.
+    * If needed experience is 5 ~ 8 years, the complexity should be more high and should contain ONLY 20 questions.
+    * If needed experience is 8 ~ 11 years, the complexity should be tough and should contain ONLY 18 questions.
+    * If needed experience is more than 11 years, the complexity should be critical and should contain ONLY 17 questions.
     * DO NOT PROVIDE the reason of why the answer is correct
 
     Each item in the list has to be in JSON format with the following fields
