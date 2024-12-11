@@ -1,10 +1,6 @@
 """Python JD Generator"""
 
-from fastapi import FastAPI, Request
-from fastapi.responses import HTMLResponse
-from fastapi.staticfiles import StaticFiles
-from fastapi.templating import Jinja2Templates
-from fastapi.middleware.cors import CORSMiddleware
+import warnings
 
 from apis import (
     access_credentials_api,
@@ -15,6 +11,13 @@ from apis import (
     preliminary_questions_api,
     resume_screen_apis,
 )
+from fastapi import FastAPI, Request
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.responses import HTMLResponse
+from fastapi.staticfiles import StaticFiles
+from fastapi.templating import Jinja2Templates
+
+warnings.filterwarnings("ignore", category=DeprecationWarning)
 
 app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
@@ -48,4 +51,4 @@ async def dashboard(request: Request):
 if __name__ == "__main__":
     import uvicorn
 
-    uvicorn.run(app, host="0.0.0.0")
+    uvicorn.run(app, host="0.0.0.0", port=8000)
